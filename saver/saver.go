@@ -1,4 +1,4 @@
-// Copyright The Enterprise Contract Contributors
+// Copyright The enterprise Contract Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/enteprise-contract/go-gather/saver/file"
+	"github.com/enterprise-contract/go-gather/saver/file"
 )
 
 // Saver is an interface for saving data to a destination.

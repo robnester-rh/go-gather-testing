@@ -1,3 +1,3 @@
-module github.com/enteprise-contract/go-gather/gather
+module github.com/enterprise-contract/go-gather/gather
 
 go 1.21.9

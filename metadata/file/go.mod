@@ -1,3 +1,3 @@
-module github.com/enteprise-contract/go-gather/metadata/file
+module github.com/enterprise-contract/go-gather/metadata/file
 
 go 1.21.9

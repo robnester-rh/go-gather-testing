@@ -1,3 +1,3 @@
-module github.com/enteprise-contract/go-gather/saver
+module github.com/enterprise-contract/go-gather/saver
 
 go 1.21.9

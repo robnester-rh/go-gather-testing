@@ -1,4 +1,4 @@
-// Copyright The Enterprise Contract Contributors
+// Copyright The enterprise Contract Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,9 +30,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/enteprise-contract/go-gather/metadata/file"
-	"github.com/enteprise-contract/go-gather/saver"
 	"github.com/enterprise-contract/go-gather/metadata"
+	"github.com/enterprise-contract/go-gather/metadata/file"
+	"github.com/enterprise-contract/go-gather/saver"
 )
 
 // FileGatherer is a struct that implements the Gatherer interface

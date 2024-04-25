@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/enteprise-contract/go-gather/saver/file"
+	"github.com/enterprise-contract/go-gather/saver/file"
 )
 
 func TestNewSaver(t *testing.T) {

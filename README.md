@@ -13,7 +13,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/enteprise-contract/go-gather/gather"
+	"github.com/enterprise-contract/go-gather/gather"
 )
 
 func main() {
@@ -47,7 +47,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/enteprise-contract/go-gather/gather"
+	"github.com/enterprise-contract/go-gather/gather"
 )
 
 func main() {
