@@ -1,3 +1,18 @@
+// Copyright The Enterprise Contract Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 package file
 
 import (
@@ -15,7 +30,7 @@ func TestFileMetadata_Get(t *testing.T) {
 		SHA:       "ef4e93945f5b3d481abe655d6ce3870132994c0bd5840e312d7ac97cde021050",
 	}
 
-	// Call the Describe method
+	// Call the Get method
 	result := m.Get()
 
 	// Assert the expected values
@@ -37,7 +52,7 @@ func TestFileMetadata_Get(t *testing.T) {
 	}
 }
 
-func TestDirectoryMetadata_Describe(t *testing.T) {
+func TestDirectoryMetadata_Get(t *testing.T) {
 	testTime := time.Now()
 	// Create a FileMetadata instance
 	m := &DirectoryMetadata{
@@ -46,7 +61,7 @@ func TestDirectoryMetadata_Describe(t *testing.T) {
 		Timestamp: testTime,
 	}
 
-	// Call the Describe method
+	// Call the Get method
 	result := m.Get()
 
 	// Assert the expected values

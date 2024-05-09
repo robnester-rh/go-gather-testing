@@ -26,6 +26,7 @@ import (
 	"net/url"
 
 	"github.com/enterprise-contract/go-gather/gather/file"
+	"github.com/enterprise-contract/go-gather/gather/git"
 	"github.com/enterprise-contract/go-gather/metadata"
 )
 
@@ -37,8 +38,8 @@ type Gatherer interface {
 // protocolHandlers maps URL schemes to their corresponding Gatherer implementations.
 var protocolHandlers = map[string]Gatherer{
 	"file": &file.FileGatherer{},
+	"git":  &git.GitGatherer{},
 	// "http": &http.HTTPGatherer{},
-	// "git": &git.GitGatherer{},
 }
 
 // Gather determines the protocol from the source URL and uses the appropriate Gatherer to perform the operation.
@@ -48,11 +49,10 @@ func Gather(ctx context.Context, source, destination string) (metadata.Metadata,
 	if err != nil {
 		return nil, err
 	}
-
 	srcProtocol := src.Scheme
-	if gatherer, ok := protocolHandlers[srcProtocol]; ok {
-		return gatherer.Gather(ctx, src.Path, destination)
-	}
 
+	if gatherer, ok := protocolHandlers[srcProtocol]; ok {
+		return gatherer.Gather(ctx, source, destination)
+	}
 	return nil, fmt.Errorf("unsupported source protocol: %s", srcProtocol)
 }
