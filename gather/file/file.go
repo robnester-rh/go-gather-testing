@@ -42,21 +42,31 @@ type FileGatherer struct{}
 // Gather copies a file or directory from the source path to the destination path.
 // It returns the metadata of the gathered file or directory and any error encountered.
 func (f *FileGatherer) Gather(ctx context.Context, source, destination string) (metadata.Metadata, error) {
+	// Parse the source URL
+	src, err := url.Parse(source)
+	if err != nil {
+		return nil, err
+	}
+
 	// Determine if we have a file or directory
-	sourceKind, err := os.Stat(source)
+	sourceKind, err := os.Stat(src.Path)
 	if err != nil {
 		return nil, err
 	}
 
 	// If it's a directory, call copyDirectory, otherwise call copyFile
 	if sourceKind.IsDir() {
-		return f.copyDirectory(ctx, source, destination)
+		return f.copyDirectory(ctx, src.Path, destination)
 	} else {
-		return f.copyFile(ctx, source, destination)
+		return f.copyFile(ctx, src.Path, destination)
 	}
 }
 
 func (f *FileGatherer) copyFile(ctx context.Context, source, destination string) (metadata.Metadata, error) {
+	src, err := url.Parse(source)
+	if err != nil {
+		return nil, err
+	}
 	select {
 	case <-ctx.Done():
 		return nil, ctx.Err()
@@ -64,7 +74,7 @@ func (f *FileGatherer) copyFile(ctx context.Context, source, destination string)
 	}
 
 	// Open the source file.
-	srcFile, err := os.Open(filepath.Clean(source))
+	srcFile, err := os.Open(filepath.Clean(src.Path))
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +119,6 @@ func (f *FileGatherer) copyFile(ctx context.Context, source, destination string)
 // and copies each file in the directory to the destination path.
 // It limits the number of concurrent operations to 10 to avoid overwhelming system resources.
 // It returns the metadata of the copied directory and any error encountered.
-
 func (f *FileGatherer) copyDirectory(ctx context.Context, source, destination string) (metadata.Metadata, error) {
 	src, err := url.Parse(source)
 	if err != nil {
@@ -128,7 +137,7 @@ func (f *FileGatherer) copyDirectory(ctx context.Context, source, destination st
 
 	go func() {
 		defer close(done)
-		filepath.Walk(src.Path, func(path string, info os.FileInfo, err error) error {
+		err = filepath.Walk(src.Path, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
 			}
@@ -178,6 +187,10 @@ func (f *FileGatherer) copyDirectory(ctx context.Context, source, destination st
 			}
 			return nil
 		})
+		if err != nil {
+			errChan <- err
+		}
+
 		wg.Wait()      // Wait for all goroutines to finish
 		close(errChan) // Close the channel safely after all sends are done
 	}()
@@ -195,6 +208,10 @@ func (f *FileGatherer) copyDirectory(ctx context.Context, source, destination st
 	}, nil
 }
 
+// getFileSha calculates the SHA256 hash of a file located at the given path.
+// It returns the hexadecimal representation of the hash and any error encountered.
+// If the file cannot be opened or an error occurs while calculating the hash, an empty string and the error are returned.
+// The file is closed before returning.
 func getFileSha(path string) (string, error) {
 	file, err := os.Open(filepath.Clean(path))
 	if err != nil {

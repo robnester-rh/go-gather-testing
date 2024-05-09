@@ -14,6 +14,25 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+// Package saver provides functionality for saving data to a destination.
+// It defines an interface Saver for saving data and a function NewSaver for creating a Saver instance based on the destination protocol.
+//
+// The Saver interface defines a single method Save, which takes a context.Context, an io.Reader containing the data to be saved,
+// and a destination string specifying the destination where the data should be saved. It returns an error if the save operation fails.
+//
+// The NewSaver function takes a protocol string as input and returns a Saver instance based on the specified protocol.
+// Currently, the only supported protocol is "file", which creates a FileSaver instance for saving data to a file.
+// If an unsupported protocol is provided, NewSaver returns an error.
+//
+// Example usage:
+//   s, err := saver.NewSaver("file")
+//   if err != nil {
+//       log.Fatal(err)
+//   }
+//   err = s.Save(context.Background(), data, "/path/to/file.txt")
+//   if err != nil {
+//       log.Fatal(err)
+//   }
 package saver
 
 import (

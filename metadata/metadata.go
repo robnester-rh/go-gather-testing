@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // Package metadata provides functionality for generating metadata.
-// It includes a Metadata interface that contains a Describe method
+// It includes a Metadata interface that contains a Get method
 // for describing metadata.
 
 package metadata
