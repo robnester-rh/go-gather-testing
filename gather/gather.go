@@ -23,10 +23,11 @@ package gather
 import (
 	"context"
 	"fmt"
-	"net/url"
 
+	gogather "github.com/enterprise-contract/go-gather"
 	"github.com/enterprise-contract/go-gather/gather/file"
 	"github.com/enterprise-contract/go-gather/gather/git"
+	"github.com/enterprise-contract/go-gather/gather/http"
 	"github.com/enterprise-contract/go-gather/metadata"
 )
 
@@ -37,21 +38,20 @@ type Gatherer interface {
 
 // protocolHandlers maps URL schemes to their corresponding Gatherer implementations.
 var protocolHandlers = map[string]Gatherer{
-	"file": &file.FileGatherer{},
-	"git":  &git.GitGatherer{},
-	// "http": &http.HTTPGatherer{},
+	"FileURI": &file.FileGatherer{},
+	"GitURI":   &git.GitGatherer{},
+	"HTTPURI":  &http.HTTPGatherer{},
 }
 
-// Gather determines the protocol from the source URL and uses the appropriate Gatherer to perform the operation.
+// Gather determines the protocol from the source URI and uses the appropriate Gatherer to perform the operation.
 // It returns the gathered metadata and an error, if any.
 func Gather(ctx context.Context, source, destination string) (metadata.Metadata, error) {
-	src, err := url.Parse(source)
+	srcProtocol, err := gogather.ClassifyURI(source)
 	if err != nil {
 		return nil, err
 	}
-	srcProtocol := src.Scheme
 
-	if gatherer, ok := protocolHandlers[srcProtocol]; ok {
+	if gatherer, ok := protocolHandlers[srcProtocol.String()]; ok {
 		return gatherer.Gather(ctx, source, destination)
 	}
 	return nil, fmt.Errorf("unsupported source protocol: %s", srcProtocol)

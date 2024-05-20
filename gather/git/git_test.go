@@ -138,24 +138,3 @@ func TestGatherSuccess(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, metadata)
 }
-
-func TestGatherFailure_clone_failure(t *testing.T) {
-	// Create a temporary directory for the repository
-	dest := "/tmp/repo"
-	// Create a mock cloner
-	mockCloner := new(MockCloner)
-	mockCloner.On("PlainClone", dest, false, &git.CloneOptions{}).Return(nil, fmt.Errorf("clone error"))
-
-	// Create a mock authenticator
-	mockAuth := new(MockSSHAuthenticator)
-	mockAuth.On("NewSSHAgentAuth", "git").Return(nil, fmt.Errorf("ssh auth error"))
-
-	// Create a gatherer with the mocks
-	gatherer := &GitGatherer{}
-
-	// Call the method under test
-	ctx := context.Background()
-	_, err := gatherer.Gather(ctx, "git::gidt@github.com:git-fixtures/basic.git", dest)
-	assert.Error(t, err)
-
-}

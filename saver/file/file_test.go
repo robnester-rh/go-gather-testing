@@ -19,10 +19,12 @@ package file
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"os"
 	"testing"
 )
 
+// TestFileSaver_Save tests the Save method of the FileSaver type.
 func TestFileSaver_Save(t *testing.T) {
 	// Create a temporary file for testing
 	tempFile, err := os.CreateTemp("", "testfile")
@@ -52,5 +54,63 @@ func TestFileSaver_Save(t *testing.T) {
 	// Assert the saved data
 	if !bytes.Equal(savedData, testData) {
 		t.Errorf("unexpected saved data: got %s, want %s", savedData, testData)
+	}
+}
+
+// TestFileSaver_UrlParseError tests the Save method of the FileSaver type when the destination URI is invalid.
+func TestFileSaver_UrlParseError(t *testing.T) {
+	// Create a FileSaver instance
+	fs := &FileSaver{}
+
+	// Call the Save method with an invalid destination URI
+	err := fs.Save(context.Background(), nil, ":")
+	if err == nil {
+		t.Error("expected an error, but got nil")
+	}
+
+	expectedErrorMessage := "parse \":\": missing protocol scheme"
+	if err.Error() != expectedErrorMessage {
+		t.Errorf("unexpected error message: got %s, want %s", err.Error(), expectedErrorMessage)
+	}
+}
+
+// TestFileSaver_MkdirAllError tests the Save method of the FileSaver type when the destination directory cannot be created.
+func TestFileSaver_MkdirAllError(t *testing.T) {
+	// Create a FileSaver instance
+	fs := &FileSaver{}
+	tempDir, err := os.MkdirTemp("", "root")
+	if err != nil {
+		t.Fatalf("failed to create temporary directory: %v", err)
+	}
+	defer os.RemoveAll(tempDir)
+	os.Chmod(tempDir, 0000)
+
+	destination := "file://" + tempDir + "/foo/test.txt"
+	// Call the Save method with a destination path that cannot be created
+	err = fs.Save(context.Background(), nil, destination)
+	if err == nil {
+		t.Error("expected an error, but got nil")
+	}
+
+	expectedErrorMessage := fmt.Sprintf("failed to create destination directory: mkdir %s/foo: permission denied", tempDir)
+	if err.Error() != expectedErrorMessage {
+		t.Errorf("unexpected error message: got %s, want %s", err.Error(), expectedErrorMessage)
+	}
+}
+
+// TestFileSaver_OsCreateError tests the Save method of the FileSaver type when the destination file cannot be created.
+func TestFileSaver_OsCreateError(t *testing.T) {
+	// Create a FileSaver instance
+	fs := &FileSaver{}
+
+	// Call the Save method with a destination path that cannot be created
+	err := fs.Save(context.Background(), nil, "/root/test.txt")
+	if err == nil {
+		t.Error("expected an error, but got nil")
+	}
+
+	expectedErrorMessage := "open /root/test.txt: permission denied"
+	if err.Error() != expectedErrorMessage {
+		t.Errorf("unexpected error message: got %s, want %s", err.Error(), expectedErrorMessage)
 	}
 }

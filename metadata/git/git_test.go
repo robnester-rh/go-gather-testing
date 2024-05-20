@@ -1,6 +1,7 @@
 package git
 
 import (
+	"os"
 	"testing"
 	"time"
 
@@ -43,6 +44,7 @@ func TestGitMetadata_Get(t *testing.T) {
 		"commits":   metadata.Commits,
 	}
 
+	defer os.RemoveAll(metadata.Path)
 	result := metadata.Get()
 
 	assert.Equal(t, expectedResult, result)
