@@ -56,7 +56,7 @@ func (r *RealSSHAuthenticator) NewSSHAgentAuth(user string) (transport.AuthMetho
 	return ssh.NewSSHAgentAuth(user)
 }
 
-// Gather clones a Git repository from the given source URL into the specified destination directory,
+// Gather clones a Git repository from the given source URI into the specified destination directory,
 // and returns the metadata of the cloned repository.
 func (g *GitGatherer) Gather(ctx context.Context, source, destination string) (metadata.Metadata, error) {
 	// Get our clone options

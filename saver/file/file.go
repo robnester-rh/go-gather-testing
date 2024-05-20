@@ -21,15 +21,17 @@
 // destination path on the local filesystem.
 //
 // Example usage:
-//   fs := &file.FileSaver{}
-//   err := fs.Save(context.Background(), data, "/path/to/destination/file.txt")
-//   if err != nil {
-//     log.Fatal(err)
-//   }
+//
+//	fs := &file.FileSaver{}
+//	err := fs.Save(context.Background(), data, "/path/to/destination/file.txt")
+//	if err != nil {
+//	  log.Fatal(err)
+//	}
 package file
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/url"
 	"os"
@@ -41,7 +43,6 @@ type FileSaver struct{}
 
 // Save implements the Saver interface for file destinations.
 func (fs *FileSaver) Save(ctx context.Context, data io.Reader, destination string) error {
-
 	dst, err := url.Parse(destination)
 	if err != nil {
 		return err
@@ -49,7 +50,7 @@ func (fs *FileSaver) Save(ctx context.Context, data io.Reader, destination strin
 
 	// Ensure the destination directory exists.
 	if err := os.MkdirAll(filepath.Dir(dst.Path), 0755); err != nil {
-		return err
+		return fmt.Errorf("failed to create destination directory: %w", err)
 	}
 
 	// Create the destination file.

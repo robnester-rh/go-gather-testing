@@ -20,18 +20,19 @@
 // The Get method can be used to obtain a description of the metadata in a structured format.
 //
 // Example usage:
-//     git := git.GitMetadata{
-//         Size:      1024,
-//         Path:      "/path/to/file.txt",
-//         Timestamp: time.Now(),
-//		   Commits: []object.Commit{...}
-//     }
-//     metadata := git.Get()
-//     fmt.Println(metadata)
+//
+//	    git := git.GitMetadata{
+//	        Size:      1024,
+//	        Path:      "/path/to/file.txt",
+//	        Timestamp: time.Now(),
+//			   Commits: []object.Commit{...}
+//	    }
+//	    metadata := git.Get()
+//	    fmt.Println(metadata)
 //
 // Output:
-//      map[size:1024 path:/path/to/file.txt timestamp:2022-01-01 12:00:00 +0000 UTC commits:[{...}] path: size:0 timestamp:0001-01-01 00:00:00 +0000 UTC]
 //
+//	map[size:1024 path:/path/to/file.txt timestamp:2022-01-01 12:00:00 +0000 UTC commits:[{...}] path: size:0 timestamp:0001-01-01 00:00:00 +0000 UTC]
 package git
 
 import (

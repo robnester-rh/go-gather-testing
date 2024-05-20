@@ -23,6 +23,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"io"
 	"net/url"
 	"os"
@@ -42,16 +43,16 @@ type FileGatherer struct{}
 // Gather copies a file or directory from the source path to the destination path.
 // It returns the metadata of the gathered file or directory and any error encountered.
 func (f *FileGatherer) Gather(ctx context.Context, source, destination string) (metadata.Metadata, error) {
-	// Parse the source URL
+	// Parse the source URI
 	src, err := url.Parse(source)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to parse source URI: %w", err)
 	}
 
 	// Determine if we have a file or directory
 	sourceKind, err := os.Stat(src.Path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to determine source kind: %w", err)
 	}
 
 	// If it's a directory, call copyDirectory, otherwise call copyFile
@@ -65,45 +66,48 @@ func (f *FileGatherer) Gather(ctx context.Context, source, destination string) (
 func (f *FileGatherer) copyFile(ctx context.Context, source, destination string) (metadata.Metadata, error) {
 	src, err := url.Parse(source)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to parse source URI: %w", err)
 	}
 	select {
 	case <-ctx.Done():
-		return nil, ctx.Err()
+		return nil, fmt.Errorf("error copying file: %w", ctx.Err())
 	default:
 	}
 
 	// Open the source file.
 	srcFile, err := os.Open(filepath.Clean(src.Path))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to open source file: %w", err)
 	}
 	defer srcFile.Close()
 
-	// Use the appropriate Saver to handle storing the data.
+	// Parse the destination URI.
 	destFile, err := url.Parse(destination)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to parse destination URI: %w", err)
 	}
 
+	// Create the appropriate Saver to handle storing the data.
 	saver, err := saver.NewSaver(destFile.Scheme)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create saver: %w", err)
 	}
 
+	// Save the file to the destination.
 	if err := saver.Save(ctx, srcFile, destination); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to save file: %w", err)
 	}
 
-	// Create metadata for the copied file.
+	// Get the file info
 	info, err := os.Stat(destFile.Path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get file info: %w", err)
 	}
 
+	// Calculate the SHA256 hash of the file
 	fileSha, err := getFileSha(destFile.Path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to calculate file SHA: %w", err)
 	}
 
 	return &file.FileMetadata{
@@ -126,7 +130,7 @@ func (f *FileGatherer) copyDirectory(ctx context.Context, source, destination st
 	}
 	dst, err := url.Parse(destination)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to parse destination URI: %w", err)
 	}
 
 	errChan := make(chan error, 100) // Increased buffer size
@@ -139,7 +143,7 @@ func (f *FileGatherer) copyDirectory(ctx context.Context, source, destination st
 		defer close(done)
 		err = filepath.Walk(src.Path, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to walk path: %w", err)
 			}
 
 			select {
@@ -150,13 +154,13 @@ func (f *FileGatherer) copyDirectory(ctx context.Context, source, destination st
 
 			relPath, err := filepath.Rel(src.Path, path)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to get relative path: %w", err)
 			}
 
 			destPath := filepath.Join(dst.Path, relPath)
 			if info.IsDir() {
 				if err := os.MkdirAll(destPath, 0755); err != nil {
-					return err
+					return fmt.Errorf("failed to create directory: %w", err)
 				}
 			} else {
 				semaphore <- struct{}{}
@@ -198,7 +202,7 @@ func (f *FileGatherer) copyDirectory(ctx context.Context, source, destination st
 	// Handle errors and completion
 	for err := range errChan {
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to copy directory: %w", err)
 		}
 	}
 	<-done
@@ -215,13 +219,13 @@ func (f *FileGatherer) copyDirectory(ctx context.Context, source, destination st
 func getFileSha(path string) (string, error) {
 	file, err := os.Open(filepath.Clean(path))
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to open file: %w", err)
 	}
 	defer file.Close()
 
 	hasher := sha256.New()
 	if _, err := io.Copy(hasher, file); err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to calculate file SHA: %w", err)
 	}
 
 	return hex.EncodeToString(hasher.Sum(nil)), nil

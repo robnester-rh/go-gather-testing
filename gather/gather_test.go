@@ -18,9 +18,12 @@ package gather
 
 import (
 	"context"
+	"net/url"
 	"os"
+	"path/filepath"
 	"testing"
 
+	"github.com/enterprise-contract/go-gather"
 	"github.com/enterprise-contract/go-gather/metadata"
 	"github.com/enterprise-contract/go-gather/metadata/git"
 )
@@ -36,7 +39,7 @@ func TestGather(t *testing.T) {
 			t.Error("expected an error, but got nil")
 		}
 
-		expectedErrorMessage := "parse \":\": missing protocol scheme"
+		expectedErrorMessage := "unsupported source protocol: Unknown"
 		if err.Error() != expectedErrorMessage {
 			t.Errorf("expected error message: %s, but got: %s", expectedErrorMessage, err.Error())
 		}
@@ -77,20 +80,16 @@ func TestGather(t *testing.T) {
 	t.Run("SupportedProtocol_file", func(t *testing.T) {
 		source := "file:///tmp/foo.txt"
 		destination := "file:///tmp/bar.txt"
-		defer os.RemoveAll(destination)
-		_ = os.WriteFile(source, []byte("hello world"), 0600)
-		defer os.RemoveAll(source)
+		src, _ := url.Parse(source)
+		dst, _ := url.Parse(destination)
+		_ = os.WriteFile(src.Path, []byte("hello world"), 0600)
+		defer os.RemoveAll(src.Path)
+		defer os.RemoveAll(dst.Path)
 
-		// Add your test logic here
-		// BEGIN: SupportedProtocolTest
-		_, err := Gather(ctx, source, destination)
+		_, err := Gather(ctx, src.Path, destination)
 		if err != nil {
 			t.Errorf("expected no error, but got: %s", err.Error())
 		}
-		// END: SupportedProtocolTest
-		t.Cleanup(func() {
-			os.RemoveAll(destination)
-		})
 	})
 
 	t.Run("CustomGatherer", func(t *testing.T) {
@@ -110,4 +109,33 @@ type mockGatherer struct{}
 func (m *mockGatherer) Gather(ctx context.Context, source, destination string) (metadata.Metadata, error) {
 	// Mock implementation
 	return &git.GitMetadata{}, nil
+}
+func TestExpandTilde(t *testing.T) {
+	homeDir, _ := os.UserHomeDir()
+
+	t.Run("NoTilde", func(t *testing.T) {
+		path := "/path/to/file"
+		expandedPath := gogather.ExpandTilde(path)
+		if expandedPath != path {
+			t.Errorf("expected expanded path: %s, but got: %s", path, expandedPath)
+		}
+	})
+
+	t.Run("WithTilde", func(t *testing.T) {
+		path := "~/path/to/file"
+		expectedPath := filepath.Join(homeDir, "path/to/file")
+		expandedPath := gogather.ExpandTilde(path)
+		if expandedPath != expectedPath {
+			t.Errorf("expected expanded path: %s, but got: %s", expectedPath, expandedPath)
+		}
+	})
+
+	t.Run("WithTildeSlash", func(t *testing.T) {
+		path := "~/path/to/file/"
+		expectedPath := filepath.Join(homeDir, "path/to/file/")
+		expandedPath := gogather.ExpandTilde(path)
+		if expandedPath != expectedPath {
+			t.Errorf("expected expanded path: %s, but got: %s", expectedPath, expandedPath)
+		}
+	})
 }

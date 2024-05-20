@@ -25,14 +25,15 @@
 // If an unsupported protocol is provided, NewSaver returns an error.
 //
 // Example usage:
-//   s, err := saver.NewSaver("file")
-//   if err != nil {
-//       log.Fatal(err)
-//   }
-//   err = s.Save(context.Background(), data, "/path/to/file.txt")
-//   if err != nil {
-//       log.Fatal(err)
-//   }
+//
+//	s, err := saver.NewSaver("file")
+//	if err != nil {
+//	    log.Fatal(err)
+//	}
+//	err = s.Save(context.Background(), data, "/path/to/file.txt")
+//	if err != nil {
+//	    log.Fatal(err)
+//	}
 package saver
 
 import (
@@ -51,7 +52,7 @@ type Saver interface {
 // NewSaver returns a Saver instance based on the destination protocol.
 func NewSaver(protocol string) (Saver, error) {
 	switch protocol {
-	case "file":
+	case "file", "FileURI":
 		return &file.FileSaver{}, nil
 	default:
 		return nil, fmt.Errorf("unsupported protocol: %s", protocol)
