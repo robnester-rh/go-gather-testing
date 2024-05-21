@@ -1,8 +1,8 @@
-github.com/enterprise-contract/go-gather/metadata v0.0.0-20240430102319-ee3b82f75e72 h1:X8Hwv3gJLHh3x7o62+X0c3iNg6ro7TOAyl0WObw7p3A=
-github.com/enterprise-contract/go-gather/metadata v0.0.0-20240430102319-ee3b82f75e72/go.mod h1:m2HxByQBWZyc99HDs/Lqy7QzU9+XQ2tU0X/mzkCPgPw=
-github.com/enterprise-contract/go-gather/metadata/file v0.0.0-20240430102319-ee3b82f75e72 h1:t3etvl+UHldVQfqiB0DBuMaAO+sS5A+irszXpfo7N8c=
-github.com/enterprise-contract/go-gather/metadata/file v0.0.0-20240430102319-ee3b82f75e72/go.mod h1:4PckwLejZstUEBp2QUAdQYQ0O+h5tijrs48j+7OY4OY=
-github.com/enterprise-contract/go-gather/saver v0.0.0-20240430102319-ee3b82f75e72 h1:G6ZtrH4qWKG7lm+bxnWHefPN3b41dIipShtfB2VnR30=
-github.com/enterprise-contract/go-gather/saver v0.0.0-20240430102319-ee3b82f75e72/go.mod h1:1Ch0P3eDeax4Fqcww8eZkE/YZ18SeXcoe67saZVkJDw=
-github.com/enterprise-contract/go-gather/saver/file v0.0.0-20240430102319-ee3b82f75e72 h1:PmvMwOJzmqrln1ohjkSrPrJ/64SWcQaPvDlMLohpv6w=
-github.com/enterprise-contract/go-gather/saver/file v0.0.0-20240430102319-ee3b82f75e72/go.mod h1:qnNStNDYPJGjJunKANv6jq93ynndcfxmUoeYeBEnZEY=
+github.com/enterprise-contract/go-gather/metadata v0.0.0-20240521080222-0648e998132b h1:TeQa9c1daZ/EtMslTDBtsk4IO1hP0rPA3E7PpSk/GGI=
+github.com/enterprise-contract/go-gather/metadata v0.0.0-20240521080222-0648e998132b/go.mod h1:m2HxByQBWZyc99HDs/Lqy7QzU9+XQ2tU0X/mzkCPgPw=
+github.com/enterprise-contract/go-gather/metadata/file v0.0.0-20240521080222-0648e998132b h1:/7DlESAdE4CW1cHOWpnZbAhBEzX1P/U8O5ZnL9Ftm0Y=
+github.com/enterprise-contract/go-gather/metadata/file v0.0.0-20240521080222-0648e998132b/go.mod h1:4PckwLejZstUEBp2QUAdQYQ0O+h5tijrs48j+7OY4OY=
+github.com/enterprise-contract/go-gather/saver v0.0.0-20240521080222-0648e998132b h1:kUSMsZ5q+Bj4OdOphfWwxdcfoMHMKO9t1AUZD9l9WtA=
+github.com/enterprise-contract/go-gather/saver v0.0.0-20240521080222-0648e998132b/go.mod h1:iZsEDpzcJSXdm0xaQqucU0xu/h1hZXsY60z5A0R/4VY=
+github.com/enterprise-contract/go-gather/saver/file v0.0.0-20240521080222-0648e998132b h1:2nWimrcrKVSpdHl9bjTzLKhvVbH7pYr/XFKUkqpdsSE=
+github.com/enterprise-contract/go-gather/saver/file v0.0.0-20240521080222-0648e998132b/go.mod h1:qnNStNDYPJGjJunKANv6jq93ynndcfxmUoeYeBEnZEY=

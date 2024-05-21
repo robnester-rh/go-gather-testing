@@ -91,8 +91,8 @@ func TestClassifyURI(t *testing.T) {
 
 func TestClassifyURI_errors(t *testing.T) {
 	testCases := []struct {
-		input string
-		expected URIType
+		input         string
+		expected      URIType
 		ExpectedError error
 	}{
 		{input: "ftp://foo.txt", expected: Unknown, ExpectedError: nil},
