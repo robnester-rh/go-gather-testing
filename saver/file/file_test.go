@@ -24,6 +24,12 @@ import (
 	"testing"
 )
 
+type mockErrorReader struct{}
+
+func (r *mockErrorReader) Read(p []byte) (n int, err error) {
+	return 0, fmt.Errorf("write error")
+}
+
 // TestFileSaver_Save tests the Save method of the FileSaver type.
 func TestFileSaver_Save(t *testing.T) {
 	// Create a temporary file for testing
@@ -68,7 +74,7 @@ func TestFileSaver_UrlParseError(t *testing.T) {
 		t.Error("expected an error, but got nil")
 	}
 
-	expectedErrorMessage := "parse \":\": missing protocol scheme"
+	expectedErrorMessage := "failed to parse destination URI: parse \":\": missing protocol scheme"
 	if err.Error() != expectedErrorMessage {
 		t.Errorf("unexpected error message: got %s, want %s", err.Error(), expectedErrorMessage)
 	}
@@ -83,7 +89,10 @@ func TestFileSaver_MkdirAllError(t *testing.T) {
 		t.Fatalf("failed to create temporary directory: %v", err)
 	}
 	defer os.RemoveAll(tempDir)
-	os.Chmod(tempDir, 0000)
+	err = os.Chmod(tempDir, 0000)
+	if err != nil {
+		t.Fatalf("failed to change directory permissions: %v", err)
+	}
 
 	destination := "file://" + tempDir + "/foo/test.txt"
 	// Call the Save method with a destination path that cannot be created
@@ -113,4 +122,27 @@ func TestFileSaver_OsCreateError(t *testing.T) {
 	if err.Error() != expectedErrorMessage {
 		t.Errorf("unexpected error message: got %s, want %s", err.Error(), expectedErrorMessage)
 	}
+}
+
+// TestFileSaver_CopyError tests the Save method of the FileSaver type when the data cannot be written to the file.
+func TestFileSaver_CopyError(t *testing.T) {
+	destination := "file://" + os.TempDir() + "/test.txt"
+	defer os.Remove(destination)
+
+	// Create a FileSaver instance
+	fs := &FileSaver{}
+
+	// Call the Save method with a destination path that cannot be created
+	err := fs.Save(context.Background(), &mockErrorReader{}, "/tmp/test.txt")
+	if err == nil {
+		t.Error("expected an error, but got nil")
+	}
+
+	expectedErrorMessage := "failed to write data to file: write error"
+	if err.Error() != expectedErrorMessage {
+		t.Errorf("unexpected error message: got %s, want %s", err.Error(), expectedErrorMessage)
+	}
+	t.Cleanup(func() {
+		os.RemoveAll(destination)
+	})
 }

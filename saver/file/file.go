@@ -43,9 +43,10 @@ type FileSaver struct{}
 
 // Save implements the Saver interface for file destinations.
 func (fs *FileSaver) Save(ctx context.Context, data io.Reader, destination string) error {
+
 	dst, err := url.Parse(destination)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to parse destination URI: %w", err)
 	}
 
 	// Ensure the destination directory exists.
@@ -62,5 +63,8 @@ func (fs *FileSaver) Save(ctx context.Context, data io.Reader, destination strin
 
 	// Write the data to the file.
 	_, err = io.Copy(f, data)
-	return err
+	if err != nil {
+		return fmt.Errorf("failed to write data to file: %w", err)
+	}
+	return nil
 }

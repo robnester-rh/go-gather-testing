@@ -39,8 +39,8 @@ type Gatherer interface {
 // protocolHandlers maps URL schemes to their corresponding Gatherer implementations.
 var protocolHandlers = map[string]Gatherer{
 	"FileURI": &file.FileGatherer{},
-	"GitURI":   &git.GitGatherer{},
-	"HTTPURI":  &http.HTTPGatherer{},
+	"GitURI":  &git.GitGatherer{},
+	"HTTPURI": &http.HTTPGatherer{},
 }
 
 // Gather determines the protocol from the source URI and uses the appropriate Gatherer to perform the operation.
@@ -48,7 +48,7 @@ var protocolHandlers = map[string]Gatherer{
 func Gather(ctx context.Context, source, destination string) (metadata.Metadata, error) {
 	srcProtocol, err := gogather.ClassifyURI(source)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to classify source URI: %w", err)
 	}
 
 	if gatherer, ok := protocolHandlers[srcProtocol.String()]; ok {

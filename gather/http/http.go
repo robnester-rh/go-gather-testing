@@ -65,19 +65,39 @@ func NewHTTPGatherer() *HTTPGatherer {
 func (h *HTTPGatherer) Gather(ctx context.Context, source, destination string) (metadata.Metadata, error) {
 
 	// Parse source
-	u, err := url.Parse(source)
+	src, err := url.Parse(source)
 	if err != nil {
 		return nil, fmt.Errorf("error parsing source URI: %w", err)
 	}
 
 	// Check if the source scheme is provided
-	if u.Scheme == "" {
+	if src.Scheme == "" {
 		return nil, fmt.Errorf("no source scheme provided")
 	}
 
-	// Check if the source path is provided
-	if u.Path == "" {
+	// Get the source filename
+	sourceFileName := filepath.Base(src.Path)
+
+	// Check if the source filename is provided
+	if sourceFileName == "" {
 		return nil, fmt.Errorf("specify a path to a file to download")
+	}
+
+	// Check if the destination has a trailing slash.
+	// If it does, append the source filename to the destination path.
+	if strings.HasSuffix(destination, "/") {
+		destination = filepath.Join(destination, sourceFileName)
+	} else {
+		// If it doesn't, append the source filename to the destination path.
+		if filepath.Ext(destination) == "" {
+			destination = filepath.Join(destination, "/", sourceFileName)
+		}
+	}
+
+	// Validate the destination path
+	err = gogather.ValidateFileDestination(destination)
+	if err != nil {
+		return nil, fmt.Errorf("error validating destination: %w", err)
 	}
 
 	// Create a new HTTP request
@@ -85,9 +105,9 @@ func (h *HTTPGatherer) Gather(ctx context.Context, source, destination string) (
 	if err != nil {
 		return nil, fmt.Errorf("error creating request: %w", err)
 	}
-	
+
 	req.Header.Set("User-Agent", "Go-Gather")
-	
+
 	// Send the HTTP request
 	resp, err := h.Client.Do(req)
 	if err != nil {
@@ -99,18 +119,10 @@ func (h *HTTPGatherer) Gather(ctx context.Context, source, destination string) (
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("response code error: %d", resp.StatusCode)
 	}
-
 	// Determine the destination type
 	scheme, err := gogather.ClassifyURI(destination)
 	if err != nil {
 		return nil, fmt.Errorf("error determining destination type: %w", err)
-	}
-
-	// Check if the destination has a trailing slash.
-	// If it does, append the source filename to the destination path.
-	if destination[len(destination)-1] == '/' {
-		destination = filepath.Join(destination, filepath.Base(u.Path))
-		fmt.Println(destination)
 	}
 
 	// Create a new saver based on the destination scheme
@@ -123,11 +135,13 @@ func (h *HTTPGatherer) Gather(ctx context.Context, source, destination string) (
 	err = s.Save(ctx, resp.Body, destination)
 	if err != nil {
 		if strings.Contains(err.Error(), "is a directory") {
-			destination = filepath.Join(destination, filepath.Base(u.Path))
+			destination = filepath.Join(destination, filepath.Base(src.Path))
 			err = s.Save(ctx, resp.Body, destination)
 			if err != nil {
 				return nil, fmt.Errorf("error saving file: %w", err)
 			}
+		} else {
+			return nil, fmt.Errorf("error saving file: %w", err)
 		}
 	}
 

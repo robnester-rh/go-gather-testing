@@ -26,17 +26,18 @@
 // of the metadata in a structured format.
 //
 // Example usage:
-//     file := file.FileMetadata{
-//         Size:      1024,
-//         Path:      "/path/to/file.txt",
-//         Timestamp: time.Now(),
-//     }
-//     description := file.Get()
-//     fmt.Println(description)
+//
+//	file := file.FileMetadata{
+//	    Size:      1024,
+//	    Path:      "/path/to/file.txt",
+//	    Timestamp: time.Now(),
+//	}
+//	description := file.Get()
+//	fmt.Println(description)
 //
 // Output:
-//     map[size:1024 path:/path/to/file.txt timestamp:2022-01-01 12:00:00 +0000 UTC sha: 11d2c59b0f250e65fdc37b9524315338f2590e61c9d5ece4e0e7e32abe419fab]
 //
+//	map[size:1024 path:/path/to/file.txt timestamp:2022-01-01 12:00:00 +0000 UTC sha: 11d2c59b0f250e65fdc37b9524315338f2590e61c9d5ece4e0e7e32abe419fab]
 package file
 
 import (
