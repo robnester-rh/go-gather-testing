@@ -45,6 +45,7 @@ type FileGatherer struct{}
 func (f *FileGatherer) Gather(ctx context.Context, source, destination string) (metadata.Metadata, error) {
 	// Parse the source URI
 	src, err := url.Parse(source)
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse source URI: %w", err)
 	}
@@ -126,7 +127,7 @@ func (f *FileGatherer) copyFile(ctx context.Context, source, destination string)
 func (f *FileGatherer) copyDirectory(ctx context.Context, source, destination string) (metadata.Metadata, error) {
 	src, err := url.Parse(source)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to parse source URI: %w", err)
 	}
 	dst, err := url.Parse(destination)
 	if err != nil {

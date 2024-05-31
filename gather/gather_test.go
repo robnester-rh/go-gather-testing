@@ -23,7 +23,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/enterprise-contract/go-gather"
+	gogather "github.com/enterprise-contract/go-gather"
 	"github.com/enterprise-contract/go-gather/metadata"
 	"github.com/enterprise-contract/go-gather/metadata/git"
 )
@@ -48,16 +48,20 @@ func TestGather(t *testing.T) {
 	t.Run("UnsupportedProtocol", func(t *testing.T) {
 		source := "ftp://example.com/file.txt"
 		destination := "/path/to/destination"
+		defer os.RemoveAll(destination)
 
 		_, err := Gather(ctx, source, destination)
 		if err == nil {
 			t.Error("expected an error, but got nil")
 		}
 
-		expectedErrorMessage := "unsupported source protocol: ftp"
+		expectedErrorMessage := "failed to classify source URI: unsupported source protocol: ftp"
 		if err.Error() != expectedErrorMessage {
 			t.Errorf("expected error message: %s, but got: %s", expectedErrorMessage, err.Error())
 		}
+		t.Cleanup(func() {
+			os.RemoveAll(destination)
+		})
 	})
 
 	t.Run("SupportedProtocol_git", func(t *testing.T) {
@@ -65,13 +69,10 @@ func TestGather(t *testing.T) {
 		destination := "/tmp/path/to/destination"
 		defer os.RemoveAll(destination)
 
-		// Add your test logic here
-		// BEGIN: SupportedProtocolTest
 		_, err := Gather(ctx, source, destination)
 		if err != nil {
 			t.Errorf("expected no error, but got: %s", err.Error())
 		}
-		// END: SupportedProtocolTest
 		t.Cleanup(func() {
 			os.RemoveAll(destination)
 		})

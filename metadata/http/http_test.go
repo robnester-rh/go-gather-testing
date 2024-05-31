@@ -11,7 +11,7 @@ func TestHTTPMetadata_Get(t *testing.T) {
 		StatusCode:    200,
 		ContentLength: 1024,
 		Destination:   "https://example.com",
-		Headers: map[string][]string{"Content-Type": {"text/plain"}},
+		Headers:       map[string][]string{"Content-Type": {"text/plain"}},
 	}
 
 	// Call the Get method

@@ -269,7 +269,7 @@ func TestFileGatherer_copyDirectory_Source_URIParseError(t *testing.T) {
 	if err == nil {
 		t.Error("expected an error, but got nil")
 	}
-	if err.Error() != "parse \":\": missing protocol scheme" {
+	if err.Error() != "failed to parse source URI: parse \":\": missing protocol scheme" {
 		t.Logf("Expected: %s, Got: %s", "parse :: missing protocol scheme", err.Error())
 		t.Fail()
 	}

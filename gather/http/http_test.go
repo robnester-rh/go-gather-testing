@@ -26,8 +26,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/enterprise-contract/go-gather/metadata/http"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/enterprise-contract/go-gather/metadata/http"
 )
 
 func TestNewHTTPGatherer(t *testing.T) {
@@ -96,6 +97,7 @@ func TestHTTPGatherer_Gather_WithTrailingSlash(t *testing.T) {
 		t.Errorf("unexpected file content: got %s, want %s", string(fileContent), expectedFileContent)
 	}
 }
+
 // TestHTTPGatherer_Gather_WithoutTrailingSlash tests the Gather method with a destination that does not have a trailing slash.
 func TestHTTPGatherer_Gather_WithoutTrailingSlash(t *testing.T) {
 	// Create a temporary directory for testing
@@ -199,8 +201,8 @@ func TestHTTPGatherer_Gather_NewRequestWithContextError(t *testing.T) {
 
 	h := &HTTPGatherer{}
 
-	// Pass a nil context to the Gather method to force an error
-	_, err := h.Gather(nil, fmt.Sprintf("%s/foo.bar", mockServer.URL), "/tmp")
+	// Pass a nil context to the Gather method to force an error.
+	_, err := h.Gather(nil, fmt.Sprintf("%s/foo.bar", mockServer.URL), "/tmp") //nolint:staticcheck
 	if err == nil {
 		t.Fatal("expected an error but got nil")
 	}

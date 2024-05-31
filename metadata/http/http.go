@@ -20,7 +20,7 @@ type HTTPMetadata struct {
 	StatusCode    int
 	ContentLength int64
 	Destination   string
-	Headers	   map[string][]string
+	Headers       map[string][]string
 }
 
 func (m HTTPMetadata) Get() map[string]any {

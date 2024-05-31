@@ -26,7 +26,7 @@ func (t URIType) String() string {
 	return [...]string{"GitURI", "HTTPURI", "FileURI", "Unknown"}[t]
 }
 
-// expandTilde expands a leading tilde in the file path to the user's home directory
+// ExpandTilde expands a leading tilde in the file path to the user's home directory
 func ExpandTilde(path string) string {
 	if strings.HasPrefix(path, "~/") {
 		homeDir, err := GetHomeDir()
@@ -51,8 +51,12 @@ func ClassifyURI(input string) (URIType, error) {
 		return HTTPURI, nil
 	}
 
+	if strings.HasPrefix(input, "github.com") || strings.HasPrefix(input, "gitlab.com") {
+		return GitURI, nil
+	}
+
 	// Regular expression for Git URIs
-	gitURIPattern := regexp.MustCompile(`^(git@[\w\.\-]+:[\w\.\-]+/[\w\.\-]+(\.git)?|https?://[\w\.\-]+/[\w\.\-]+/[\w\.\-]+(\.git)?|git://[\w\.\-]+/[\w\.\-]+/[\w\.\-]+(\.git)?|[\w\.\-]+/[\w\.\-]+/[\w\.\-]+//.*|file://.*\.git)$`)
+	gitURIPattern := regexp.MustCompile(`^(git@[\w\.\-]+:[\w\.\-]+/[\w\.\-]+(\.git)?|https?://[\w\.\-]+/[\w\.\-]+/[\w\.\-]+(\.git)?|git://[\w\.\-]+/[\w\.\-]+/[\w\.\-]+(\.git)?|[\w\.\-]+/[\w\.\-]+/[\w\.\-]+//.*|file://.*\.git|[\w\.\-]+/[\w\.\-]+(\.git)?)$`)
 	// Regular expression for HTTP URIs (with or without protocol)
 	httpURIPattern := regexp.MustCompile(`^((http://|https://)[\w\-]+(\.[\w\-]+)+.*)$`)
 	// Regular expression for file paths
@@ -91,8 +95,23 @@ func ClassifyURI(input string) (URIType, error) {
 
 	// Check if the input contains a dot but lacks a valid scheme
 	if strings.Contains(input, ".") {
-		return Unknown, fmt.Errorf("HTTP(S) URIs require a scheme (http:// or https://)")
+		return Unknown, fmt.Errorf("got %s. HTTP(S) URIs require a scheme (http:// or https://)", input)
 	}
 
 	return Unknown, nil
+}
+
+// ValidateFileDestination validates the d1estination path for saving files
+func ValidateFileDestination(destination string) error {
+	// Expand the tilde in the file path if it exists
+	destination = ExpandTilde(destination)
+	// Check if the destination file exists.
+	_, err := os.Stat(destination)
+	if err == nil {
+		return fmt.Errorf("destination file already exists: %s", destination)
+	}
+	if os.IsNotExist(err) {
+		return nil
+	}
+	return nil
 }

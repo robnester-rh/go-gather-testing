@@ -1,7 +1,10 @@
 package gogather
 
 import (
+	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -76,6 +79,8 @@ func TestClassifyURI(t *testing.T) {
 		{input: "/home/user/file.git", expected: GitURI},
 		{input: "https://example.com", expected: HTTPURI},
 		{input: "ftpexamplecom", expected: Unknown},
+		{input: "github.com/user/repo.git", expected: GitURI},
+		{input: "gitlab.com/user/repo.git", expected: GitURI},
 	}
 
 	for _, tc := range testCases {
@@ -105,4 +110,61 @@ func TestClassifyURI_errors(t *testing.T) {
 			t.Errorf("Expected an error, but got nil")
 		}
 	}
+}
+
+// TestValidateFileDestination tests the ValidateFileDestination function.
+func TestValidateFileDestination(t *testing.T) {
+	testCases := []struct {
+		destination string
+	}{
+		{destination: "/path/to/file.txt"},
+		{destination: "/path/to/directory/"},
+	}
+
+	for _, tc := range testCases {
+		err := ValidateFileDestination(tc.destination)
+		if err != nil {
+			t.Errorf("Unexpected error: %v", err)
+		}
+	}
+}
+
+// TestValidateFileDestination_errors tests the ValidateFileDestination function with invalid destinations.
+func TestValidateFileDestination_errors(t *testing.T) {
+	dir, _ := os.MkdirTemp("", "path")
+	err := os.WriteFile(filepath.Join(dir, "file.text"), []byte("test"), 0600)
+	if err != nil {
+		t.Fatalf("Failed to create file: %v", err)
+	}
+	defer os.RemoveAll(dir)
+
+	testCases := []struct {
+		destination string
+		errExpected bool
+		expectedErr error
+	}{
+		{
+			destination: filepath.Join(dir, "file.text"),
+			errExpected: true,
+			expectedErr: errors.New("destination is a file"),
+		},
+		{
+			destination: filepath.Join(dir, "file2.text"),
+			errExpected: false,
+			expectedErr: nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		err := ValidateFileDestination(tc.destination)
+		if tc.errExpected && err == nil {
+			t.Errorf("Expected an error: %s,\n but got nil", tc.expectedErr)
+		}
+		if !tc.errExpected && err != nil {
+			t.Errorf("Expected no error, but got: %s", err)
+		}
+	}
+	t.Cleanup(func() {
+		os.RemoveAll(dir)
+	})
 }
