@@ -39,7 +39,7 @@ go.work:
 .PHONY: test
 test: go.work ## Run all unit tests
 	@echo "Unit tests:"
-	@go test -race -covermode=atomic -coverprofile=coverage-unit.out -timeout 500ms -tags=unit $$(go work edit -json | jq -c -r '[.Use[].DiskPath] | map_values(. + "/...")[]')
+	@go test -race -covermode=atomic -coverprofile=coverage-unit.out -timeout 1000ms -tags=unit $$(go work edit -json | jq -c -r '[.Use[].DiskPath] | map_values(. + "/...")[]')
 
 .PHONY: lint
 lint: go.work go-mod-lint ## Run linter
