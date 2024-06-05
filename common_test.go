@@ -1,3 +1,19 @@
+// Copyright The Enterprise Contract Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package gogather
 
 import (
@@ -30,7 +46,7 @@ func TestURITypeString(t *testing.T) {
 
 // TestExpandTilde tests the ExpandTilde function.
 func TestExpandTilde(t *testing.T) {
-	GetHomeDir = func() (string, error) {
+	getHomeDir = func() (string, error) {
 		return "/home/user", nil
 	}
 
@@ -54,7 +70,7 @@ func TestExpandTilde(t *testing.T) {
 // TestExpandTilde_OsUserHomeDirError tests the ExpandTilde function when os.UserHomeDir returns an error.
 func TestExpandTilde_OsUserHomeDirError(t *testing.T) {
 	// Mock os.UserHomeDir to return an error
-	GetHomeDir = func() (string, error) {
+	getHomeDir = func() (string, error) {
 		return "", fmt.Errorf("mock error")
 	}
 

@@ -1,6 +1,6 @@
 module github.com/enterprise-contract/go-gather/gather/http
 
-go 1.22.2
+go 1.21.9
 
 require (
 	github.com/enterprise-contract/go-gather v0.0.0-20240523073727-ba2c37023242

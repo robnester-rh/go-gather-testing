@@ -28,9 +28,11 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
+	"github.com/enterprise-contract/go-gather/expander"
 	"github.com/enterprise-contract/go-gather/metadata"
 	"github.com/enterprise-contract/go-gather/metadata/file"
 	"github.com/enterprise-contract/go-gather/saver"
@@ -54,6 +56,35 @@ func (f *FileGatherer) Gather(ctx context.Context, source, destination string) (
 	sourceKind, err := os.Stat(src.Path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to determine source kind: %w", err)
+	}
+
+	// Determine if we have a tar file as the src. If so, we need to untar it.
+	if strings.HasSuffix(src.Path, ".tar") {
+		dst, err := url.Parse(destination)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse destination URI: %w", err)
+		}
+
+		t := &expander.TarExpander{
+			FilesLimit:    0,
+			FileSizeLimit: 0,
+		}
+
+		err = t.Expand(dst.Path, src.Path, true, 0755)
+		if err != nil {
+			return nil, fmt.Errorf("failed to expand tar file: %w", err)
+		}
+
+		info, err := os.Stat(destination)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get file info: %w", err)
+		}
+
+		return &file.FileMetadata{
+			Size:      info.Size(),
+			Path:      destination,
+			Timestamp: info.ModTime(),
+		}, nil
 	}
 
 	// If it's a directory, call copyDirectory, otherwise call copyFile
