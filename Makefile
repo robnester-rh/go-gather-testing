@@ -28,13 +28,21 @@ help: ## Display this help
 		}\
 	} BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9%/_-]+:.*?##/ { printf "  \033[36m%-18s\033[0m %s\n", "make " $$1, ww($$2) } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
+# The go.work file is git ignored and not checked in. Create one if
+# it doesn't exist already. (Note we're using absolute paths.)
+go.work:
+	ROOT=$$(git rev-parse --show-toplevel) && \
+		cd $${ROOT} && \
+		go work init && \
+		go work use -r $${ROOT}
+
 .PHONY: test
-test: ## Run all unit tests
+test: go.work ## Run all unit tests
 	@echo "Unit tests:"
 	@go test -race -covermode=atomic -coverprofile=coverage-unit.out -timeout 500ms -tags=unit $$(go work edit -json | jq -c -r '[.Use[].DiskPath] | map_values(. + "/...")[]')
 
 .PHONY: lint
-lint: go-mod-lint ## Run linter
+lint: go.work go-mod-lint ## Run linter
 	@golangci-lint run --sort-results -- $$(go work edit -json | jq -c -r '[.Use[].DiskPath] | map_values(. + "/...")[]')
 
 .PHONY: go-mod-lint
@@ -50,5 +58,5 @@ go-mod-lint:
 	fi
 
 .PHONY: lint-fix
-lint-fix:
+lint-fix: go.work
 	@golangci-lint run --sort-results --fix -- $$(go work edit -json | jq -c -r '[.Use[].DiskPath] | map_values(. + "/...")[]')
