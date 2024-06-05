@@ -1,3 +1,19 @@
+// Copyright The Enterprise Contract Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package gogather
 
 import (
@@ -19,7 +35,7 @@ const (
 	Unknown
 )
 
-var GetHomeDir = os.UserHomeDir
+var getHomeDir = os.UserHomeDir
 
 // String returns the string representation of the URLType
 func (t URIType) String() string {
@@ -29,7 +45,7 @@ func (t URIType) String() string {
 // ExpandTilde expands a leading tilde in the file path to the user's home directory
 func ExpandTilde(path string) string {
 	if strings.HasPrefix(path, "~/") {
-		homeDir, err := GetHomeDir()
+		homeDir, err := getHomeDir()
 		if err != nil {
 			return path
 		}
@@ -101,7 +117,7 @@ func ClassifyURI(input string) (URIType, error) {
 	return Unknown, nil
 }
 
-// ValidateFileDestination validates the d1estination path for saving files
+// ValidateFileDestination validates the destination path for saving files
 func ValidateFileDestination(destination string) error {
 	// Expand the tilde in the file path if it exists
 	destination = ExpandTilde(destination)
