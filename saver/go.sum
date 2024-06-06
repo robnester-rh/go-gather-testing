@@ -1,2 +1,2 @@
-github.com/enterprise-contract/go-gather/saver/file v0.0.0-20240521080222-0648e998132b h1:2nWimrcrKVSpdHl9bjTzLKhvVbH7pYr/XFKUkqpdsSE=
-github.com/enterprise-contract/go-gather/saver/file v0.0.0-20240521080222-0648e998132b/go.mod h1:qnNStNDYPJGjJunKANv6jq93ynndcfxmUoeYeBEnZEY=
+github.com/enterprise-contract/go-gather/saver/file v0.0.1 h1:rLDMb7AW5kJLqRaKXazZroT8wfqy43tth6O6XLKY0MY=
+github.com/enterprise-contract/go-gather/saver/file v0.0.1/go.mod h1:qnNStNDYPJGjJunKANv6jq93ynndcfxmUoeYeBEnZEY=
