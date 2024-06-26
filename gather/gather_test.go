@@ -32,7 +32,7 @@ func TestGather(t *testing.T) {
 	ctx := context.Background()
 	t.Run("SourceParseError", func(t *testing.T) {
 		source := ":"
-		destination := "/path/to/destination"
+		destination := "/tmp/foo"
 
 		_, err := Gather(ctx, source, destination)
 		if err == nil {
@@ -43,11 +43,14 @@ func TestGather(t *testing.T) {
 		if err.Error() != expectedErrorMessage {
 			t.Errorf("expected error message: %s, but got: %s", expectedErrorMessage, err.Error())
 		}
+		t.Cleanup(func() {
+			os.RemoveAll(destination)
+		})
 	})
 
 	t.Run("UnsupportedProtocol", func(t *testing.T) {
 		source := "ftp://example.com/file.txt"
-		destination := "/path/to/destination"
+		destination := "/tmp/foo"
 		defer os.RemoveAll(destination)
 
 		_, err := Gather(ctx, source, destination)
@@ -66,7 +69,7 @@ func TestGather(t *testing.T) {
 
 	t.Run("SupportedProtocol_git", func(t *testing.T) {
 		source := "git::https://github.com/git-fixtures/basic.git"
-		destination := "/tmp/path/to/destination"
+		destination := "/tmp/foo"
 		defer os.RemoveAll(destination)
 
 		_, err := Gather(ctx, source, destination)
@@ -91,6 +94,9 @@ func TestGather(t *testing.T) {
 		if err != nil {
 			t.Errorf("expected no error, but got: %s", err.Error())
 		}
+		t.Cleanup(func() {
+			os.RemoveAll(destination)
+		})
 	})
 
 	t.Run("CustomGatherer", func(t *testing.T) {
@@ -102,6 +108,9 @@ func TestGather(t *testing.T) {
 		if err != nil {
 			t.Errorf("expected no error, but got: %s", err.Error())
 		}
+		t.Cleanup(func() {
+			os.RemoveAll(destination)
+		})
 	})
 }
 

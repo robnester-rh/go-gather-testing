@@ -28,6 +28,7 @@ import (
 	"github.com/enterprise-contract/go-gather/gather/file"
 	"github.com/enterprise-contract/go-gather/gather/git"
 	"github.com/enterprise-contract/go-gather/gather/http"
+	"github.com/enterprise-contract/go-gather/gather/oci"
 	"github.com/enterprise-contract/go-gather/metadata"
 )
 
@@ -41,6 +42,7 @@ var protocolHandlers = map[string]Gatherer{
 	"FileURI": &file.FileGatherer{},
 	"GitURI":  &git.GitGatherer{},
 	"HTTPURI": &http.HTTPGatherer{},
+	"OCIURI": &oci.OCIGatherer{},
 }
 
 // Gather determines the protocol from the source URI and uses the appropriate Gatherer to perform the operation.
