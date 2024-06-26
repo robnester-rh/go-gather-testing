@@ -97,6 +97,17 @@ func TestClassifyURI(t *testing.T) {
 		{input: "ftpexamplecom", expected: Unknown},
 		{input: "github.com/user/repo.git", expected: GitURI},
 		{input: "gitlab.com/user/repo.git", expected: GitURI},
+		{input: "oci::registry.gitlab.com/user/repo:latest", expected: OCIURI},
+		{input: "oci::registry.gitlab.com/user/repo", expected: OCIURI},
+		{input: "oci::registry.gitlab.com/user/repo:1.0.0", expected: OCIURI},
+		{input: "oci://example.org/user/repo:latest", expected: OCIURI},
+		{input: "quay.io/user/repo:latest", expected: OCIURI},
+		{input: "127.0.0.1:5000", expected: OCIURI},
+		{input: "registry.gitlab.com/user/repo:latest", expected: OCIURI},
+		{input: "pkg.dev/user/repo:latest", expected: OCIURI},
+		{input: "123456789012.dkr.ecr.us-west-2.amazonaws.com/user/repo:latest", expected: OCIURI},
+		{input: "gcr.io/user/repo:latest", expected: OCIURI},
+		{input: "azurecr.io/user/repo:latest", expected: OCIURI},
 	}
 
 	for _, tc := range testCases {
@@ -183,4 +194,31 @@ func TestValidateFileDestination_errors(t *testing.T) {
 	t.Cleanup(func() {
 		os.RemoveAll(dir)
 	})
+}
+
+func TestContainsOCIRegistry(t *testing.T) {
+	testCases := []struct {
+		input    string
+		expected bool
+	}{
+		{input: "azurecr.io", expected: true},
+		{input: "gcr.io", expected: true},
+		{input: "registry.gitlab.com", expected: true},
+		{input: "pkg.dev", expected: true},
+		{input: "123456789012.dkr.ecr.us-west-2.amazonaws.com", expected: true},
+		{input: "quay.io", expected: true},
+		{input: "::1", expected: false},
+		{input: "127.0.0.1", expected: false},
+		{input: "123.123.123.123", expected: false},
+		{input: "127.0.0.1:8080", expected: true},
+		{input: "localhost:8080", expected: true},
+		{input: "example.com", expected: false},
+	}
+
+	for _, tc := range testCases {
+		actual := containsOCIRegistry(tc.input)
+		if actual != tc.expected {
+			t.Errorf("Expected containsOCIRegistry(%s) to return %t, but got %t", tc.input, tc.expected, actual)
+		}
+	}
 }

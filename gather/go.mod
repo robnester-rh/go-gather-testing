@@ -7,6 +7,7 @@ require (
 	github.com/enterprise-contract/go-gather/gather/file v0.0.1
 	github.com/enterprise-contract/go-gather/gather/git v0.0.1
 	github.com/enterprise-contract/go-gather/gather/http v0.0.1
+	github.com/enterprise-contract/go-gather/gather/oci v0.0.1
 	github.com/enterprise-contract/go-gather/metadata v0.0.1
 	github.com/enterprise-contract/go-gather/metadata/git v0.0.1
 )

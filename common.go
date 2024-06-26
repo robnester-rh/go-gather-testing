@@ -32,6 +32,7 @@ const (
 	GitURI URIType = iota
 	HTTPURI
 	FileURI
+	OCIURI
 	Unknown
 )
 
@@ -39,7 +40,7 @@ var getHomeDir = os.UserHomeDir
 
 // String returns the string representation of the URLType
 func (t URIType) String() string {
-	return [...]string{"GitURI", "HTTPURI", "FileURI", "Unknown"}[t]
+	return [...]string{"GitURI", "HTTPURI", "FileURI", "OCIURL", "Unknown"}[t]
 }
 
 // ExpandTilde expands a leading tilde in the file path to the user's home directory
@@ -67,6 +68,10 @@ func ClassifyURI(input string) (URIType, error) {
 		return HTTPURI, nil
 	}
 
+	if strings.HasPrefix(input, "oci::") {
+		return OCIURI, nil
+	}
+
 	if strings.HasPrefix(input, "github.com") || strings.HasPrefix(input, "gitlab.com") {
 		return GitURI, nil
 	}
@@ -77,6 +82,9 @@ func ClassifyURI(input string) (URIType, error) {
 	httpURIPattern := regexp.MustCompile(`^((http://|https://)[\w\-]+(\.[\w\-]+)+.*)$`)
 	// Regular expression for file paths
 	filePathPattern := regexp.MustCompile(`^(\./|\../|/|[a-zA-Z]:\\|~\/|file://).*`)
+	// Regular expression for OCI URIs
+	ociURIPattern := regexp.MustCompile(`^((oci://)[\w\-]+(\.[\w\-]+)+.*)$`)
+	// Regular expressions for known OCI registries
 
 	// Check if the input matches the file path pattern first
 	if filePathPattern.MatchString(input) {
@@ -101,6 +109,17 @@ func ClassifyURI(input string) (URIType, error) {
 		if err == nil && (parsedURI.Scheme == "http" || parsedURI.Scheme == "https") {
 			return HTTPURI, nil
 		}
+	}
+
+	// Check if the input matches the OCI URI pattern
+	if ociURIPattern.MatchString(input) {
+		return OCIURI, nil
+	}
+
+	// Check if the input matches any known OCI registry
+	isOCI := containsOCIRegistry(input)
+	if isOCI {
+		return OCIURI, nil
 	}
 
 	// Check for unsupported schemes
@@ -130,4 +149,24 @@ func ValidateFileDestination(destination string) error {
 		return nil
 	}
 	return nil
+}
+
+// containsOCIRegistry checks if the input string contains a known OCI registry
+func containsOCIRegistry(src string) bool {
+	matchRegistries := []*regexp.Regexp{
+		regexp.MustCompile("azurecr.io"),
+		regexp.MustCompile("gcr.io"),
+		regexp.MustCompile("registry.gitlab.com"),
+		regexp.MustCompile("pkg.dev"),
+		regexp.MustCompile("[0-9]{12}.dkr.ecr.[a-z0-9-]*.amazonaws.com"),
+		regexp.MustCompile("^quay.io"),
+		regexp.MustCompile(`(?:::1|127\.0\.0\.1|(?i:localhost)):\d{1,5}`), // localhost OCI registry
+	}
+
+	for _, matchRegistry := range matchRegistries {
+		if matchRegistry.MatchString(src) {
+			return true
+		}
+	}
+	return false
 }
