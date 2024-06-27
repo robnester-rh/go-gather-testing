@@ -1,11 +1,11 @@
 package oci
 
 type OCIMetadata struct {
-	Digest    string
+	Digest string
 }
 
 func (o OCIMetadata) Get() map[string]any {
 	return map[string]any{
-		"digest":    o.Digest,
+		"digest": o.Digest,
 	}
 }
