@@ -6,14 +6,14 @@ import (
 	"os"
 	"strings"
 
-	r "github.com/enterprise-contract/go-gather/gather/oci/internal/registry"
-
-	"github.com/enterprise-contract/go-gather/metadata"
-	"github.com/enterprise-contract/go-gather/metadata/oci"
 	"oras.land/oras-go/v2"
 	"oras.land/oras-go/v2/content/file"
 	"oras.land/oras-go/v2/registry"
 	"oras.land/oras-go/v2/registry/remote"
+
+	r "github.com/enterprise-contract/go-gather/gather/oci/internal/registry"
+	"github.com/enterprise-contract/go-gather/metadata"
+	"github.com/enterprise-contract/go-gather/metadata/oci"
 )
 
 // OCIGatherer is a struct that implements the Gatherer interface
@@ -24,6 +24,10 @@ type OCIGatherer struct{}
 // It returns the metadata of the gathered file or directory and any error encountered.
 // Portions of this file are derivative from the open-policy-agent/conftest project.
 func (f *OCIGatherer) Gather(ctx context.Context, source, destination string) (metadata.Metadata, error) {
+	if strings.Contains(source, "localhost") {
+		source = strings.ReplaceAll(source, "localhost", "127.0.0.1")
+	}
+
 	// Parse the source URI
 	repo := ociURLParse(source)
 
@@ -68,10 +72,7 @@ func (f *OCIGatherer) Gather(ctx context.Context, source, destination string) (m
 		return nil, fmt.Errorf("pulling policy: %w", err)
 	}
 
-	m := &oci.OCIMetadata{
-		Digest: a.Digest.String(),
-	}
-	return m, nil
+	return &oci.OCIMetadata{Digest: a.Digest.String()}, nil
 }
 
 func ociURLParse(source string) string {

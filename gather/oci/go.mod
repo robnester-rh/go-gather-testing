@@ -3,15 +3,13 @@ module github.com/enterprise-contract/go-gather/gather/oci
 go 1.21.9
 
 require (
-	github.com/open-policy-agent/conftest v0.53.0
-	oras.land/oras-go/v2 v2.5.0
-
+	github.com/enterprise-contract/go-gather/metadata v0.0.2
 	github.com/enterprise-contract/go-gather/metadata/oci v0.0.1
+	oras.land/oras-go/v2 v2.5.0
 )
 
 require (
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
-	github.com/google/go-containerregistry v0.19.2
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
@@ -25,7 +23,7 @@ require (
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/spf13/viper v1.18.2 // indirect
+	github.com/spf13/viper v1.18.2
 	github.com/subosito/gotenv v1.6.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
@@ -37,3 +35,5 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+require github.com/google/go-cmp v0.6.0 // indirect
