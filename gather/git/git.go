@@ -76,6 +76,10 @@ func (g *GitGatherer) Gather(ctx context.Context, source, destination string) (m
 		URL: src,
 	}
 
+	if os.Getenv("GIT_SSL_NO_VERIFY") == "true" {
+		cloneOpts.InsecureSkipTLS = true
+	}
+
 	if ref != "" {
 		cloneOpts.ReferenceName = plumbing.ReferenceName("refs/heads/" + ref)
 	}
