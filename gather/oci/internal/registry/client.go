@@ -3,12 +3,13 @@ package registry
 import (
 	"net/http"
 
-	"github.com/enterprise-contract/go-gather/gather/oci/internal/network"
 	"github.com/spf13/viper"
 	"oras.land/oras-go/v2/registry/remote"
 	"oras.land/oras-go/v2/registry/remote/auth"
 	"oras.land/oras-go/v2/registry/remote/credentials"
 	"oras.land/oras-go/v2/registry/remote/retry"
+
+	"github.com/enterprise-contract/go-gather/gather/oci/internal/network"
 )
 
 func SetupClient(repository *remote.Repository) error {
