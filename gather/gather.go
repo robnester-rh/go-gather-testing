@@ -42,7 +42,7 @@ var protocolHandlers = map[string]Gatherer{
 	"FileURI": &file.FileGatherer{},
 	"GitURI":  &git.GitGatherer{},
 	"HTTPURI": &http.HTTPGatherer{},
-	"OCIURI": &oci.OCIGatherer{},
+	"OCIURI":  &oci.OCIGatherer{},
 }
 
 // Gather determines the protocol from the source URI and uses the appropriate Gatherer to perform the operation.
