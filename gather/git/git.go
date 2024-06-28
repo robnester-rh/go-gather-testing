@@ -299,13 +299,14 @@ func processUrl(rawURL string) (src, ref, subdir, depth string, err error) {
 	if err != nil {
 		return src, ref, subdir, depth, fmt.Errorf("failed to classify URI: %w", err)
 	}
-	if t == gogather.GitURI && !strings.Contains(rawURL, "git@") && !strings.Contains(rawURL, "://") {
-		rawURL = "https://" + rawURL
-	}
 
 	// Check if the rawURL contains "::" and split it to get the actual URL if it does
 	if strings.Contains(rawURL, "::") {
 		rawURL = strings.Split(rawURL, "::")[1]
+	}
+
+	if t == gogather.GitURI && !strings.Contains(rawURL, "git@") && !strings.Contains(rawURL, "://") {
+		rawURL = "https://" + rawURL
 	}
 
 	// Parse the raw URL with the gitUrls package. This will format the URL correctly
