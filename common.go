@@ -40,7 +40,7 @@ var getHomeDir = os.UserHomeDir
 
 // String returns the string representation of the URLType
 func (t URIType) String() string {
-	return [...]string{"GitURI", "HTTPURI", "FileURI", "OCIURL", "Unknown"}[t]
+	return [...]string{"GitURI", "HTTPURI", "FileURI", "OCIURI", "Unknown"}[t]
 }
 
 // ExpandTilde expands a leading tilde in the file path to the user's home directory
