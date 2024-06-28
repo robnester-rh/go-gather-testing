@@ -1,3 +1,23 @@
+// Copyright The Enterprise Contract Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+
+// Package oci provides functionality for gathering files or directories from OCI (Open Container Initiative) sources.
+// It includes an implementation of the Gatherer interface, OCIGatherer, which allows copying files or directories from an OCI source to a destination path.
+// The Gather method in OCIGatherer takes a source path and a destination path, and returns the metadata of the gathered file or directory and any error encountered.
+// This package also includes a helper function, ociURLParse, for parsing the source URI.
 package oci
 
 import (
@@ -76,6 +96,10 @@ func (f *OCIGatherer) Gather(ctx context.Context, source, destination string) (m
 }
 
 func ociURLParse(source string) string {
+	if strings.Contains(source, "::") {
+		source = strings.Split(source, "::")[1]
+	}
+
 	scheme, src, found := strings.Cut(source, "://")
 	if !found {
 		src = scheme
