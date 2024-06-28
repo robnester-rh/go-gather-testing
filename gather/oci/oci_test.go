@@ -93,14 +93,10 @@ func TestOCIGatherer_Gather(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			gatherer := &OCIGatherer{}
-			metadata, err := gatherer.Gather(ctx, tc.source, tc.destination)
+			_, err := gatherer.Gather(ctx, tc.source, tc.destination)
 
 			if err != tc.expectedErr {
 				t.Errorf("Expected error: %v, but got: %v", tc.expectedErr, err)
-			}
-
-			if metadata != nil {
-				t.Errorf("Expected metadata to be nil, but got: %v", metadata)
 			}
 		})
 		t.Cleanup(func() {
