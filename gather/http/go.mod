@@ -4,7 +4,7 @@ go 1.21.9
 
 require (
 	github.com/enterprise-contract/go-gather v0.0.1
-	github.com/enterprise-contract/go-gather/metadata v0.0.1
+	github.com/enterprise-contract/go-gather/metadata v0.0.2
 	github.com/enterprise-contract/go-gather/metadata/http v0.0.1
 	github.com/enterprise-contract/go-gather/saver v0.0.1
 	github.com/stretchr/testify v1.9.0
