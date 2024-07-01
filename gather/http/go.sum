@@ -3,6 +3,8 @@ github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/enterprise-contract/go-gather v0.0.1 h1:B1n4zTWd+hd85E3+M/iwY/BelyDFdF5TuqWDX56O5BE=
 github.com/enterprise-contract/go-gather v0.0.1/go.mod h1:gXqnYRW9uTD06xli3pE+9cwtPVcIdqyPIqBcKQ+kK8I=
+github.com/enterprise-contract/go-gather v0.0.3 h1:Qh4CJhOPdMit4Z/BK3rv7S3GkZ5XLzAlAus1eMKLDA4=
+github.com/enterprise-contract/go-gather v0.0.3/go.mod h1:gXqnYRW9uTD06xli3pE+9cwtPVcIdqyPIqBcKQ+kK8I=
 github.com/enterprise-contract/go-gather/metadata v0.0.1 h1:lpYbDGWWDxJuZ24Prrbec9/4CqhhVsMfOGWg2jrDehg=
 github.com/enterprise-contract/go-gather/metadata v0.0.1/go.mod h1:m2HxByQBWZyc99HDs/Lqy7QzU9+XQ2tU0X/mzkCPgPw=
 github.com/enterprise-contract/go-gather/metadata v0.0.2 h1:BxPXXZFjX7lrYnlJosPmvISgjF13HpawEtZTDxjnjcQ=
