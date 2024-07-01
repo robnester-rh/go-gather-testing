@@ -6,6 +6,8 @@ github.com/enterprise-contract/go-gather/metadata v0.0.2 h1:BxPXXZFjX7lrYnlJosPm
 github.com/enterprise-contract/go-gather/metadata v0.0.2/go.mod h1:m2HxByQBWZyc99HDs/Lqy7QzU9+XQ2tU0X/mzkCPgPw=
 github.com/enterprise-contract/go-gather/metadata/oci v0.0.1 h1:12hqwNYsvo49UOu5P+YjwDX3f0q93fUfUcY9p0u5ta4=
 github.com/enterprise-contract/go-gather/metadata/oci v0.0.1/go.mod h1:kJSMxYth37g604Cvsa18ibgTU33zagsadeQ7p1DYIak=
+github.com/enterprise-contract/go-gather/metadata/oci v0.0.2 h1:FkXQTKnGr5Hci+4mrfXJLhmjMqHTJvgtubVsFB3KgJI=
+github.com/enterprise-contract/go-gather/metadata/oci v0.0.2/go.mod h1:kJSMxYth37g604Cvsa18ibgTU33zagsadeQ7p1DYIak=
 github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHkI4W8=
 github.com/frankban/quicktest v1.14.6/go.mod h1:4ptaffx2x8+WTWXmUCuVU6aPUX1/Mz7zb5vbUoiM6w0=
 github.com/fsnotify/fsnotify v1.7.0 h1:8JEhPFa5W2WU7YfeZzPNqzMP6Lwt7L2715Ggo0nosvA=
