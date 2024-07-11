@@ -35,34 +35,18 @@
 //	map[size:1024 path:/path/to/file.txt timestamp:2022-01-01 12:00:00 +0000 UTC commits:[{...}] path: size:0 timestamp:0001-01-01 00:00:00 +0000 UTC]
 package git
 
-import (
-	"time"
-
-	"github.com/go-git/go-git/v5/plumbing/object"
-)
-
 // GitMetadata is a struct that represents the metadata of a git repository.
 // It has fields for size, path, timestamp, and commits.
 type GitMetadata struct {
-	Size      int64
-	Path      string
-	Timestamp time.Time
-	Commits   []object.Commit
+	LatestCommit string
 }
 
 func (m GitMetadata) Get() map[string]any {
 	return map[string]any{
-		"size":      m.Size,
-		"path":      m.Path,
-		"timestamp": m.Timestamp,
-		"commits":   m.Commits,
+		"latest_commit": m.LatestCommit,
 	}
 }
 
-func (m GitMetadata) GetHashes() []string {
-	hashes := make([]string, 0, len(m.Commits))
-	for _, commit := range m.Commits {
-		hashes = append(hashes, commit.Hash.String())
-	}
-	return hashes
+func (m GitMetadata) GetLatestCommit() string {
+	return m.LatestCommit
 }

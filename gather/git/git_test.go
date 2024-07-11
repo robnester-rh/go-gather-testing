@@ -19,11 +19,10 @@ package git
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"os"
-	"path/filepath"
 	"reflect"
 	"testing"
-	"time"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
@@ -31,8 +30,6 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-
-	gitMetadata "github.com/enterprise-contract/go-gather/metadata/git"
 )
 
 type MockSSHAuthenticator struct {
@@ -59,6 +56,11 @@ type MockCloner struct {
 
 func (m *MockCloner) PlainClone(destination string, isBare bool, opts *git.CloneOptions) (*git.Repository, error) {
 	args := m.Called(destination, isBare, opts)
+	return args.Get(0).(*git.Repository), args.Error(1)
+}
+
+func (m *MockCloner) PlainCloneContext(ctx context.Context, destination string, isBare bool, opts *git.CloneOptions) (*git.Repository, error) {
+	args := m.Called(ctx, destination, isBare, opts)
 	return args.Get(0).(*git.Repository), args.Error(1)
 }
 
@@ -143,6 +145,103 @@ func TestGatherSuccess(t *testing.T) {
 	assert.NotNil(t, metadata)
 }
 
+// TestGatherSuccess_withSubDir tests the successful gathering of a git repository with a subdirectory
+func TestGatherSuccess_withSubDir(t *testing.T) {
+	// Create a temporary directory for the repository
+	dir, err := os.MkdirTemp("", "repo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(dir)
+
+	// Create a mock repository
+	mockRepo := new(MockRepository)
+	mockRepo.On("CommitObjects").Return(&MockMetadata{}, nil)
+
+	// Create a mock cloner
+	mockCloner := new(MockCloner)
+	mockCloner.On("PlainCloneContext", mock.Anything, false, &git.CloneOptions{URL: "https://github.com/git-fixtures/basic.git"}).Return(mockRepo, nil)
+
+	// Create a mock authenticator
+	mockAuth := new(MockSSHAuthenticator)
+	mockAuth.On("NewSSHAgentAuth", "git").Return(nil, nil)
+
+	// Create a gatherer with the mocks
+	gatherer := &GitGatherer{}
+
+	// Call the method under test
+	ctx := context.Background()
+	metadata, err := gatherer.Gather(ctx, "https://github.com/git-fixtures/basic.git//go", dir)
+
+	// Assert that the metadata was returned
+	assert.NoError(t, err)
+	assert.NotNil(t, metadata)
+}
+
+// TestGatherSuccess_withRef tests the successful gathering of a git repository with a ref
+func TestGatherSuccess_withRef(t *testing.T) {
+	// Create a temporary directory for the repository
+	dir, err := os.MkdirTemp("", "repo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(dir)
+
+	// Create a mock repository
+	mockRepo := new(MockRepository)
+	mockRepo.On("CommitObjects").Return(&MockMetadata{}, nil)
+
+	// Create a mock cloner
+	mockCloner := new(MockCloner)
+	mockCloner.On("PlainClone", dir, false, &git.CloneOptions{URL: "https://github.com/git-fixtures/basic.git", Depth: 1, ReferenceName: "refs/heads/main"}).Return(mockRepo, nil)
+
+	// Create a mock authenticator
+	mockAuth := new(MockSSHAuthenticator)
+	mockAuth.On("NewSSHAgentAuth", "git").Return(nil, nil)
+
+	// Create a gatherer with the mocks
+	gatherer := &GitGatherer{}
+
+	// Call the method under test
+	ctx := context.Background()
+	metadata, err := gatherer.Gather(ctx, "https://github.com/git-fixtures/basic.git?ref=main", dir)
+
+	// Assert that the metadata was returned
+	assert.NoError(t, err)
+	assert.NotNil(t, metadata)
+}
+
+// TestGatherError_ParseDepth tests the error handling when depth is invalid
+func TestGatherError_ParseDepth(t *testing.T) {
+	// Create a temporary directory for the repository
+	dir, err := os.MkdirTemp("", "repo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(dir)
+
+	// Create a mock repository
+	mockRepo := new(MockRepository)
+	mockRepo.On("CommitObjects").Return(&MockMetadata{}, nil)
+
+	// Create a mock cloner
+	mockCloner := new(MockCloner)
+	mockCloner.On("PlainClone", dir, false, &git.CloneOptions{URL: "https://github.com/git-fixtures/basic.git?depth=squiggle"}).Return(mockRepo, nil)
+
+	// Create a mock authenticator
+	mockAuth := new(MockSSHAuthenticator)
+	mockAuth.On("NewSSHAgentAuth", "git").Return(nil, nil)
+
+	// Create a gatherer with the mocks
+	gatherer := &GitGatherer{}
+
+	// Call the method under test
+	ctx := context.Background()
+	_, err = gatherer.Gather(ctx, "https://github.com/git-fixtures/basic.git?depth=squiggle", dir)
+
+	assert.EqualError(t, err, "failed to parse depth: strconv.Atoi: parsing \"squiggle\": invalid syntax")
+}
+
 // TestGatherError_ProcessURL tests the error handling of the processURL function
 func TestGatherError_ProcessURL(t *testing.T) {
 	// Create a temporary directory for the repository
@@ -172,100 +271,102 @@ func TestGatherError_ProcessURL(t *testing.T) {
 	_, err = gatherer.Gather(ctx, "basic.git", dir)
 
 	assert.EqualError(t, err, "failed to process URL: failed to classify URI: got basic.git. HTTP(S) URIs require a scheme (http:// or https://)")
-
 }
 
-// TestGather_CloneOpts tests that the ref and depth are set correctly in the clone options
-
-func TestCloneRepositoryPath(t *testing.T) {
-	// Create a temporary directory for the destination
-	destination, err := os.MkdirTemp("", "test-destination")
+func TestCopyDir(t *testing.T) {
+	// Create a temporary directory for the repository
+	srcDir, err := os.MkdirTemp("", "src")
 	if err != nil {
 		t.Fatal(err)
 	}
-	// defer os.RemoveAll(destination)
+	defer os.RemoveAll(srcDir)
 
-	// Create a temporary directory for the source repository
-	sourceRepo, err := os.MkdirTemp("", "test-source-repo")
+	// Create a temporary directory for the repository
+	destDir, err := os.MkdirTemp("", "dest")
 	if err != nil {
 		t.Fatal(err)
 	}
-	// defer os.RemoveAll(sourceRepo)
+	defer os.RemoveAll(destDir)
 
-	// Create a temporary directory for the subdirectory
-	subdir, err := os.MkdirTemp(sourceRepo, "test-subdir")
+	// Create a file in the source directory
+	srcFile, err := os.Create(srcDir + "/file.txt")
 	if err != nil {
 		t.Fatal(err)
 	}
-	// defer os.RemoveAll(subdir)
+	srcFile.Close()
 
-	// Create a test file in the subdirectory
-	testFile := filepath.Join(subdir, "test.txt")
-	err = os.WriteFile(testFile, []byte("test content"), 0600)
+	// Copy the directory
+	err = copyDir(srcDir, destDir)
+	assert.NoError(t, err)
+
+	// Check that the file was copied
+	_, err = os.Stat(destDir + "/file.txt")
+	assert.NoError(t, err)
+}
+
+// TestCopyDir_SrcDirError tests the error handling of the copyDir function when the source directory does not exist
+func TestCopyDir_SrcDirError(t *testing.T) {
+	// Create a temporary directory for the repository
+	destDir, err := os.MkdirTemp("", "dest")
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer os.RemoveAll(destDir)
 
-	// Initialize a new Git repository in the source repository
-	r, err := git.PlainInit(sourceRepo, false)
+	// Copy the directory
+	err = copyDir("nonexistent", destDir)
+	assert.Error(t, err)
+
+	// Check that the error is as expected
+	assert.EqualError(t, err, "error getting source directory info: stat nonexistent: no such file or directory")
+}
+
+// TestCopyDir_SrcDirIsFileError tests the error handling of the copyDir function when the source directory is a file
+func TestCopyDir_SrcDirIsFileError(t *testing.T) {
+	// Create a temporary directory for the repository
+	srcDir, err := os.MkdirTemp("", "src")
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer os.RemoveAll(srcDir)
 
-	// Add the test file to the Git repository
-	w, err := r.Worktree()
+	// Create a file in the source directory
+	srcFile, err := os.Create(srcDir + "/file.txt")
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = w.Add(".")
+	srcFile.Close()
+
+	// Create a temporary directory for the repository
+	destDir, err := os.MkdirTemp("", "dest")
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer os.RemoveAll(destDir)
 
-	// Commit the changes to the Git repository
-	commit, err := w.Commit("Initial commit", &git.CommitOptions{
-		Author: &object.Signature{
-			Name:  "Test User",
-			Email: "test@example.com",
-			When:  time.Now(),
-		},
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
+	// Copy the directory
+	err = copyDir(srcDir+"/file.txt", destDir)
+	assert.Error(t, err)
 
-	// Create a new Git clone options
-	cloneOpts := &git.CloneOptions{
-		URL: sourceRepo,
-	}
+	// Check that the error is as expected
+	assert.EqualError(t, err, srcDir+"/file.txt is not a directory")
+}
 
-	// Clone the repository path
-	metadata, err := cloneRepositoryPath(context.Background(), filepath.Base(subdir), destination, cloneOpts)
-	if err != nil {
-		t.Fatal(err)
-	}
+// TestExtractKeyFromQuery tests the successful extraction of a given key from a query string
+func TestExtractKeyFromQuery(t *testing.T) {
+	src := "https://example.com/org/repo.git?ref=foo//bar"
+	u, _ := url.Parse(src)
+	subdir := "/bar"
 
-	// Assert that the destination directory exists
-	_, err = os.Stat(destination)
-	if err != nil {
-		t.Fatalf("destination directory does not exist: %v", err)
-	}
+	ref := extractKeyFromQuery(u.Query(), "ref", &subdir)
+	assert.Equal(t, "foo", ref)
+}
 
-	// Assert that the test file exists in the destination directory
-	_, err = os.Stat(filepath.Join(destination, "test.txt"))
-	if err != nil {
-		t.Fatalf("test file does not exist in the destination directory: %v", err)
-	}
+func TestExtractSubdirFromQuery(t *testing.T) {
+	src := "https://example.com/org/repo.git"
+	u, _ := url.Parse(src)
+	subdir := ""
 
-	// Assert that the metadata contains the commit
-	gitMetadata, ok := metadata.(*gitMetadata.GitMetadata)
-	if !ok {
-		t.Fatalf("unexpected metadata type: %T", metadata)
-	}
-	if len(gitMetadata.Commits) != 1 {
-		t.Fatalf("unexpected number of commits in metadata: %d", len(gitMetadata.Commits))
-	}
-	if gitMetadata.Commits[0].Hash.String() != commit.String() {
-		t.Fatalf("unexpected commit hash in metadata: %s", gitMetadata.Commits[0].Hash.String())
-	}
+	ref := extractKeyFromQuery(u.Query(), "ref", &subdir)
+	assert.Equal(t, "", ref)
 }
