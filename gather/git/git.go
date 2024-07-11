@@ -31,7 +31,6 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
-	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	gitUrls "github.com/whilp/git-urls"
@@ -67,112 +66,71 @@ func (r *RealSSHAuthenticator) NewSSHAgentAuth(user string) (transport.AuthMetho
 // Gather clones a Git repository from the given source URI into the specified destination directory,
 // and returns the metadata of the cloned repository.
 func (g *GitGatherer) Gather(ctx context.Context, source, destination string) (metadata.Metadata, error) {
+	// Process our providied source URL to get the source URL, ref, subdir, and depth
 	src, ref, subdir, depth, err := processUrl(source)
 	if err != nil {
 		return nil, fmt.Errorf("failed to process URL: %w", err)
 	}
 
+	// Initialize the clone options for the git repository
 	cloneOpts := &git.CloneOptions{
-		URL: src,
-	}
-
-	if os.Getenv("GIT_SSL_NO_VERIFY") == "true" {
-		cloneOpts.InsecureSkipTLS = true
-	}
-
-	if ref != "" {
-		cloneOpts.ReferenceName = plumbing.ReferenceName("refs/heads/" + ref)
+		URL:             src,
+		InsecureSkipTLS: os.Getenv("GIT_SSL_NO_VERIFY") == "true",
 	}
 
 	if depth != "" {
-		depth, err := strconv.Atoi(depth)
+		cloneOpts.Depth, err = strconv.Atoi(depth)
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse depth: %w", err)
 		}
-		cloneOpts.Depth = depth
 	}
 
-	// If we don't have a subdir, clone the repository and return the metadata
-	if subdir == "" {
-		r, err := git.PlainClone(destination, false, cloneOpts)
+	// Initialize the git repository and worktree
+	r := &git.Repository{}
+	w := &git.Worktree{}
+
+	// tmpDir is used to clone the repository if a subdir is specified
+	var tmpDir string
+
+	if subdir != "" {
+		tmpDir, err = os.MkdirTemp("", "git-repo-")
 		if err != nil {
-			return nil, fmt.Errorf("error cloning repository: %w", err)
+			return nil, fmt.Errorf("error creating temporary directory: %w", err)
 		}
+		defer os.RemoveAll(tmpDir)
 
-		// Get the commit history
-		commits, err := r.CommitObjects()
+		r, _ = git.PlainCloneContext(ctx, tmpDir, false, cloneOpts)
+	} else {
+		r, _ = git.PlainCloneContext(ctx, destination, false, cloneOpts)
+	}
+
+	if ref != "" {
+		h, _ := r.ResolveRevision(plumbing.Revision(ref))
+		w, _ = r.Worktree()
+		checkoutOpts := &git.CheckoutOptions{
+			Hash: *h,
+		}
+		w.Checkout(checkoutOpts)
+	}
+
+	if subdir != "" {
+		w, _ = r.Worktree()
+		_, err = w.Filesystem.Stat(subdir)
 		if err != nil {
-			return nil, fmt.Errorf("error getting commit history: %w", err)
+			return nil, fmt.Errorf("path %s does not exist in the repository", subdir)
 		}
-
-		// Safely accumulate commits into the metadata structure
-		m := &gitMetadata.GitMetadata{}
-		err = commits.ForEach(func(c *object.Commit) error {
-			m.Commits = append(m.Commits, *c)
-			return nil
-		})
+		path := filepath.Join(tmpDir, subdir)
+		err = copyDir(path, destination)
 		if err != nil {
-			return nil, fmt.Errorf("error accumulating commits: %w", err)
+			return nil, fmt.Errorf("error copying directory: %w", err)
 		}
-
-		return m, nil
-
 	}
 
-	// If we have a subdir, clone the repository and copy the subdir to the destination
-	return cloneRepositoryPath(ctx, subdir, destination, cloneOpts)
-}
+	head, _ := r.Head()
 
-// cloneRepositoryPath clones a git repository, copies the specified subdirectory to the destination, and returns the metadata.
-func cloneRepositoryPath(ctx context.Context, path, destination string, cloneOpts *git.CloneOptions) (metadata.Metadata, error) {
-	// create a temporary directory to clone the repository into
-	tmpDir, err := os.MkdirTemp("", "git-repo-")
-	if err != nil {
-		return nil, fmt.Errorf("error creating temporary directory: %w", err)
+	m := &gitMetadata.GitMetadata{
+		LatestCommit: head.Hash().String(),
 	}
-	defer os.RemoveAll(tmpDir)
-
-	// Clone the repository into the temporary directory
-	r, err := git.PlainCloneContext(ctx, tmpDir, false, cloneOpts)
-	if err != nil {
-		return nil, fmt.Errorf("error cloning repository: %w", err)
-	}
-
-	// Get the worktree
-	w, err := r.Worktree()
-	if err != nil {
-		return nil, fmt.Errorf("error getting worktree: %w", err)
-	}
-
-	// Check if the path exists in the repository
-	_, err = w.Filesystem.Stat(path)
-	if err != nil {
-		return nil, fmt.Errorf("path %s does not exist in the repository", path)
-	}
-
-	path = filepath.Join(tmpDir, path)
-
-	err = copyDir(path, destination)
-	if err != nil {
-		return nil, fmt.Errorf("error copying directory: %w", err)
-	}
-
-	// Get the commit history
-	commits, err := r.CommitObjects()
-	if err != nil {
-		return nil, fmt.Errorf("error getting commit history: %w", err)
-	}
-
-	// Safely accumulate commits into the metadata structure
-	m := &gitMetadata.GitMetadata{}
-	err = commits.ForEach(func(c *object.Commit) error {
-		m.Commits = append(m.Commits, *c)
-		return nil
-	})
-	if err != nil {
-		return nil, fmt.Errorf("error accumulating commits: %w", err)
-	}
-
 	return m, nil
 }
 
@@ -252,8 +210,8 @@ func copyFile(src string, dst string) error {
 	return os.Chmod(dst, srcInfo.Mode())
 }
 
-// extractSubdirFromQuery extracts the value of the key from the query parameters and extracts a subdir, if present.
-func extractSubdirFromQuery(q url.Values, key string, subdir *string) string {
+// extractKeyFromQuery extracts the value of the specified key from the query parameters and extracts a subdir, if present.
+func extractKeyFromQuery(q url.Values, key string, subdir *string) string {
 	value := q.Get(key)
 	if strings.Contains(value, "//") {
 		parts := strings.SplitN(value, "//", 2)
@@ -323,8 +281,8 @@ func processUrl(rawURL string) (src, ref, subdir, depth string, err error) {
 
 	// Extract the ref, subdir, and depth from the query parameters
 	q := u.Query()
-	ref = extractSubdirFromQuery(q, "ref", &subdir)
-	depth = extractSubdirFromQuery(q, "depth", &subdir)
+	ref = extractKeyFromQuery(q, "ref", &subdir)
+	depth = extractKeyFromQuery(q, "depth", &subdir)
 	u.RawQuery = q.Encode()
 
 	// If the path contains "//", split it to get the actual path and subdir
