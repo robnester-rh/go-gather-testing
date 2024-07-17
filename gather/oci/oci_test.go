@@ -6,6 +6,12 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	ocispec "github.com/opencontainers/image-spec/specs-go/v1"
+	"github.com/stretchr/testify/assert"
+	"oras.land/oras-go/v2"
+
+	"github.com/enterprise-contract/go-gather/metadata/oci"
 )
 
 func getRegistryURL(src string) string {
@@ -56,54 +62,48 @@ func TestOCIURLParse(t *testing.T) {
 	}
 }
 
-// TestOCIGatherer_Gather tests the Gather function.
-func TestOCIGatherer_Gather(t *testing.T) {
+// TestOCIGatherer_Gather_Success tests the Gather function when it's successful.
+func TestOCIGatherer_Gather_Success(t *testing.T) {
 	ctx := context.TODO()
-
-	testCases := []struct {
-		name         string
-		source       string
-		destination  string
-		expectedRepo string
-		expectedErr  error
-	}{
-		{
-			name:         "Valid source URI",
-			source:       "quay.io/libpod/alpine",
-			destination:  "/tmp/foo",
-			expectedRepo: "quay.io/libpod/alpine:latest",
-			expectedErr:  nil,
-		},
-		{
-			name:         "Valid source URI with tag",
-			source:       "quay.io/libpod/alpine:3.2",
-			destination:  "/tmp/foo",
-			expectedRepo: "quay.io/libpod/alpine:3.2",
-			expectedErr:  nil,
-		},
-		{
-			name:         "Valid source URI with HTTPS",
-			source:       "https://quay.io/libpod/alpine",
-			destination:  "/tmp/foo",
-			expectedRepo: "https://quay.io/libpod/alpine:latest",
-			expectedErr:  nil,
-		},
+	source := "example.com/org/repo"
+	destination := "/tmp/foo"
+	orasCopy = func(_ context.Context, _ oras.ReadOnlyTarget, _ string, _ oras.Target, _ string, _ oras.CopyOptions) (ocispec.Descriptor, error) {
+		return ocispec.Descriptor{Digest: "fa93b01658e3a5a1686dc3ae55f170d8de487006fb53a28efcd12ab0710a2e5f"}, nil
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			gatherer := &OCIGatherer{}
-			_, err := gatherer.Gather(ctx, tc.source, tc.destination)
+	t.Run("Gather", func(t *testing.T) {
+		gatherer := &OCIGatherer{}
+		m, err := gatherer.Gather(ctx, source, destination)
+		if err != nil {
+			t.Errorf("Expected error to be nil, but got: %v", err)
+		}
+		assert.Equal(t, "fa93b01658e3a5a1686dc3ae55f170d8de487006fb53a28efcd12ab0710a2e5f", m.(*oci.OCIMetadata).Digest, "Digest should be equal, expected: %s, got: %s", "fa93b01658e3a5a1686dc3ae55f170d8de487006fb53a28efcd12ab0710a2e5f", m.(*oci.OCIMetadata).Digest)
+	})
+	t.Cleanup(func() {
+		// Cleanup the destination directory
+		os.RemoveAll(destination)
+	})
+}
 
-			if err != tc.expectedErr {
-				t.Errorf("Expected error: %v, but got: %v", tc.expectedErr, err)
-			}
-		})
-		t.Cleanup(func() {
-			// Cleanup the destination directory
-			os.RemoveAll(tc.destination)
-		})
+// TestOCIGatherer_Gather_Failure tests the Gather function when it fails.
+func TestOCIGatherer_Gather_Failure(t *testing.T) {
+	ctx := context.TODO()
+	source := "example.com/org/repo"
+	destination := "/tmp/foo"
+	expectedError := fmt.Errorf("error")
+	orasCopy = func(_ context.Context, _ oras.ReadOnlyTarget, _ string, _ oras.Target, _ string, _ oras.CopyOptions) (ocispec.Descriptor, error) {
+		return ocispec.Descriptor{}, expectedError
 	}
+
+	t.Run("Gather", func(t *testing.T) {
+		gatherer := &OCIGatherer{}
+		_, err := gatherer.Gather(ctx, source, destination)
+		assert.Equal(t, fmt.Errorf("pulling policy: %w", expectedError), err, "Error should be equal, expected: %s, got: %s", err)
+	})
+	t.Cleanup(func() {
+		// Cleanup the destination directory
+		os.RemoveAll(destination)
+	})
 }
 
 // TestOCIGatherer_Gather_Invalid_URIs tests the Gather function with invalid source URIs.
