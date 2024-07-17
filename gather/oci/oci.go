@@ -36,6 +36,8 @@ import (
 	"github.com/enterprise-contract/go-gather/metadata/oci"
 )
 
+var orasCopy = oras.Copy
+
 // OCIGatherer is a struct that implements the Gatherer interface
 // and provides methods for gathering from OCI.
 type OCIGatherer struct{}
@@ -87,7 +89,7 @@ func (f *OCIGatherer) Gather(ctx context.Context, source, destination string) (m
 	defer fileStore.Close()
 
 	// Copy the artifact to the file store
-	a, err := oras.Copy(ctx, src, repo, fileStore, "", oras.DefaultCopyOptions)
+	a, err := orasCopy(ctx, src, repo, fileStore, "", oras.DefaultCopyOptions)
 	if err != nil {
 		return nil, fmt.Errorf("pulling policy: %w", err)
 	}
