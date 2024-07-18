@@ -7,7 +7,7 @@ require (
 	github.com/enterprise-contract/go-gather/gather/file v0.0.1
 	github.com/enterprise-contract/go-gather/gather/git v0.0.3
 	github.com/enterprise-contract/go-gather/gather/http v0.0.1
-	github.com/enterprise-contract/go-gather/gather/oci v0.0.3
+	github.com/enterprise-contract/go-gather/gather/oci v0.0.4
 	github.com/enterprise-contract/go-gather/metadata v0.0.2
 	github.com/enterprise-contract/go-gather/metadata/git v0.0.1
 )
@@ -22,7 +22,7 @@ require (
 	github.com/enterprise-contract/go-gather/expander v0.0.1 // indirect
 	github.com/enterprise-contract/go-gather/metadata/file v0.0.1 // indirect
 	github.com/enterprise-contract/go-gather/metadata/http v0.0.1 // indirect
-	github.com/enterprise-contract/go-gather/metadata/oci v0.0.1 // indirect
+	github.com/enterprise-contract/go-gather/metadata/oci v0.0.2 // indirect
 	github.com/enterprise-contract/go-gather/saver v0.0.1 // indirect
 	github.com/enterprise-contract/go-gather/saver/file v0.0.1 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
