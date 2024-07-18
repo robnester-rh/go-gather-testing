@@ -29,11 +29,11 @@ import (
 	"strconv"
 	"strings"
 
+	giturls "github.com/chainguard-dev/git-urls"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
-	gitUrls "github.com/whilp/git-urls"
 
 	gogather "github.com/enterprise-contract/go-gather"
 	"github.com/enterprise-contract/go-gather/metadata"
@@ -105,12 +105,21 @@ func (g *GitGatherer) Gather(ctx context.Context, source, destination string) (m
 	}
 
 	if ref != "" {
-		h, _ := r.ResolveRevision(plumbing.Revision(ref))
-		w, _ = r.Worktree()
+		h, err := r.ResolveRevision(plumbing.Revision(ref))
+		if err != nil {
+			return nil, fmt.Errorf("error resolving ref: %w", err)
+		}
+		w, err = r.Worktree()
+		if err != nil {
+			return nil, fmt.Errorf("error getting worktree: %w", err)
+		}
 		checkoutOpts := &git.CheckoutOptions{
 			Hash: *h,
 		}
-		w.Checkout(checkoutOpts)
+		err = w.Checkout(checkoutOpts)
+		if err != nil {
+			return nil, fmt.Errorf("error checking out ref: %w", err)
+		}
 	}
 
 	if subdir != "" {
@@ -225,7 +234,7 @@ func extractKeyFromQuery(q url.Values, key string, subdir *string) string {
 
 // getGitCloneOptions returns the clone options for the git repository.
 func getCloneOptions(source string, auth SSHAuthenticator) (*git.CloneOptions, error) {
-	src, err := gitUrls.Parse(source)
+	src, err := giturls.Parse(source)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse source URL: %w", err)
 	}
@@ -268,7 +277,7 @@ func processUrl(rawURL string) (src, ref, subdir, depth string, err error) {
 	}
 
 	// Parse the raw URL with the gitUrls package. This will format the URL correctly
-	parsedURL, err := gitUrls.Parse(rawURL)
+	parsedURL, err := giturls.Parse(rawURL)
 	if err != nil {
 		return src, ref, subdir, depth, fmt.Errorf("failed to parse URL: %w", err)
 	}

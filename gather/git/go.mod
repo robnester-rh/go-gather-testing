@@ -3,12 +3,12 @@ module github.com/enterprise-contract/go-gather/gather/git
 go 1.21.9
 
 require (
+	github.com/chainguard-dev/git-urls v1.0.2
 	github.com/enterprise-contract/go-gather v0.0.3
 	github.com/enterprise-contract/go-gather/metadata v0.0.2
 	github.com/enterprise-contract/go-gather/metadata/git v0.0.1
 	github.com/go-git/go-git/v5 v5.12.0
 	github.com/stretchr/testify v1.9.0
-	github.com/whilp/git-urls v1.0.0
 )
 
 require (
