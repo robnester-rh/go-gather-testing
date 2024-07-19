@@ -41,6 +41,8 @@ github.com/enterprise-contract/go-gather/metadata/file v0.0.1 h1:DRhTGKRXFRh/FVn
 github.com/enterprise-contract/go-gather/metadata/file v0.0.1/go.mod h1:4PckwLejZstUEBp2QUAdQYQ0O+h5tijrs48j+7OY4OY=
 github.com/enterprise-contract/go-gather/metadata/git v0.0.1 h1:tBzKlmAxmkrI0IbfrDjQwzucZJh7eTMVwaz+nY2cLaU=
 github.com/enterprise-contract/go-gather/metadata/git v0.0.1/go.mod h1:Gb6z7fKBr5hiF4lbkJbRupS+zHe0imCPn3ukTDlg+dc=
+github.com/enterprise-contract/go-gather/metadata/git v0.0.2 h1:dsIFe2uxbSzO2wRM+MPjL6cjcJxvG00zrXUUoWj4vg8=
+github.com/enterprise-contract/go-gather/metadata/git v0.0.2/go.mod h1:lSI/5buGHKqQk+AZGOSRejk5tuC76XCvV1Zv/JZUEbE=
 github.com/enterprise-contract/go-gather/metadata/http v0.0.1 h1:ebhT9h93v/Et+5c1t5PJzGj6V2g18elm1VDrQg6y63A=
 github.com/enterprise-contract/go-gather/metadata/http v0.0.1/go.mod h1:VjjTqsJ+sM7MVsVkEFgpcJzY9hur9pIBEMptrVvAwoI=
 github.com/enterprise-contract/go-gather/metadata/oci v0.0.1 h1:12hqwNYsvo49UOu5P+YjwDX3f0q93fUfUcY9p0u5ta4=
