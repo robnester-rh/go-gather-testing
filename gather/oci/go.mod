@@ -4,7 +4,7 @@ go 1.21.9
 
 require (
 	github.com/enterprise-contract/go-gather/metadata v0.0.2
-	github.com/enterprise-contract/go-gather/metadata/oci v0.0.2
+	github.com/enterprise-contract/go-gather/metadata/oci v0.0.3
 	oras.land/oras-go/v2 v2.5.0
 )
 
