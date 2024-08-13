@@ -193,7 +193,7 @@ func TestGatherSuccess_withRef(t *testing.T) {
 
 	// Create a mock cloner
 	mockCloner := new(MockCloner)
-	mockCloner.On("PlainClone", dir, false, &git.CloneOptions{URL: "https://github.com/git-fixtures/basic.git", Depth: 1, ReferenceName: "refs/heads/main"}).Return(mockRepo, nil)
+	mockCloner.On("PlainClone", dir, false, &git.CloneOptions{URL: "https://github.com/git-fixtures/basic.git", Depth: 1, ReferenceName: "refs/heads/master"}).Return(mockRepo, nil)
 
 	// Create a mock authenticator
 	mockAuth := new(MockSSHAuthenticator)
@@ -204,7 +204,7 @@ func TestGatherSuccess_withRef(t *testing.T) {
 
 	// Call the method under test
 	ctx := context.Background()
-	metadata, err := gatherer.Gather(ctx, "https://github.com/git-fixtures/basic.git?ref=main", dir)
+	metadata, err := gatherer.Gather(ctx, "https://github.com/git-fixtures/basic.git?ref=master", dir)
 
 	// Assert that the metadata was returned
 	assert.NoError(t, err)

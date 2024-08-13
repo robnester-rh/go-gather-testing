@@ -29,8 +29,6 @@ github.com/enterprise-contract/go-gather v0.0.3 h1:Qh4CJhOPdMit4Z/BK3rv7S3GkZ5XL
 github.com/enterprise-contract/go-gather v0.0.3/go.mod h1:gXqnYRW9uTD06xli3pE+9cwtPVcIdqyPIqBcKQ+kK8I=
 github.com/enterprise-contract/go-gather/metadata v0.0.2 h1:BxPXXZFjX7lrYnlJosPmvISgjF13HpawEtZTDxjnjcQ=
 github.com/enterprise-contract/go-gather/metadata v0.0.2/go.mod h1:m2HxByQBWZyc99HDs/Lqy7QzU9+XQ2tU0X/mzkCPgPw=
-github.com/enterprise-contract/go-gather/metadata/git v0.0.1 h1:tBzKlmAxmkrI0IbfrDjQwzucZJh7eTMVwaz+nY2cLaU=
-github.com/enterprise-contract/go-gather/metadata/git v0.0.1/go.mod h1:Gb6z7fKBr5hiF4lbkJbRupS+zHe0imCPn3ukTDlg+dc=
 github.com/enterprise-contract/go-gather/metadata/git v0.0.2 h1:dsIFe2uxbSzO2wRM+MPjL6cjcJxvG00zrXUUoWj4vg8=
 github.com/enterprise-contract/go-gather/metadata/git v0.0.2/go.mod h1:lSI/5buGHKqQk+AZGOSRejk5tuC76XCvV1Zv/JZUEbE=
 github.com/gliderlabs/ssh v0.3.7 h1:iV3Bqi942d9huXnzEF2Mt+CY9gLu8DNM4Obd+8bODRE=
