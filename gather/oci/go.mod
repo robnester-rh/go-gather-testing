@@ -1,6 +1,6 @@
 module github.com/enterprise-contract/go-gather/gather/oci
 
-go 1.21.9
+go 1.22.5
 
 require (
 	github.com/enterprise-contract/go-gather/metadata v0.0.2
