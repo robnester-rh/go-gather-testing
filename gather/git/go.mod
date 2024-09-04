@@ -1,6 +1,6 @@
 module github.com/enterprise-contract/go-gather/gather/git
 
-go 1.21.9
+go 1.22.5
 
 require (
 	github.com/chainguard-dev/git-urls v1.0.2
