@@ -100,9 +100,15 @@ func (g *GitGatherer) Gather(ctx context.Context, source, destination string) (m
 		}
 		defer os.RemoveAll(tmpDir)
 
-		r, _ = git.PlainCloneContext(ctx, tmpDir, false, cloneOpts)
+		r, err = git.PlainCloneContext(ctx, tmpDir, false, cloneOpts)
+		if err != nil {
+			return nil, fmt.Errorf("error cloning repository: %w", err)
+		}
 	} else {
-		r, _ = git.PlainCloneContext(ctx, destination, false, cloneOpts)
+		r, err = git.PlainCloneContext(ctx, destination, false, cloneOpts)
+		if err != nil {
+			return nil, fmt.Errorf("error cloning repository: %w", err)
+		}
 	}
 
 	if ref != "" {
@@ -124,7 +130,10 @@ func (g *GitGatherer) Gather(ctx context.Context, source, destination string) (m
 	}
 
 	if subdir != "" {
-		w, _ = r.Worktree()
+		w, err = r.Worktree()
+		if err != nil {
+			return nil, fmt.Errorf("error getting worktree: %w", err)
+		}
 		_, err = w.Filesystem.Stat(subdir)
 		if err != nil {
 			return nil, fmt.Errorf("path %s does not exist in the repository", subdir)
