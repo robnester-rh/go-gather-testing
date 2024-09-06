@@ -209,7 +209,7 @@ func (f *FileGatherer) copyDirectory(ctx context.Context, source, destination st
 					}
 					defer srcFile.Close()
 
-					saver, err := saver.NewSaver(dst.Scheme)
+					saver, err := saver.NewSaver("file")
 					if err != nil {
 						errChan <- err
 						return
