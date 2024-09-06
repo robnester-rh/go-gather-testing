@@ -136,7 +136,10 @@ func (g *GitGatherer) Gather(ctx context.Context, source, destination string) (m
 		}
 	}
 
-	head, _ := r.Head()
+	head, err := r.Head()
+	if err != nil {
+		return nil, fmt.Errorf("determining the HEAD reference: %w", err)
+	}
 
 	m := &gitMetadata.GitMetadata{
 		LatestCommit: head.Hash().String(),
