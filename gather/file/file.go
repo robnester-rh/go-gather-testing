@@ -120,7 +120,7 @@ func (f *FileGatherer) copyFile(ctx context.Context, source, destination string)
 	}
 
 	// Create the appropriate Saver to handle storing the data.
-	saver, err := saver.NewSaver(destFile.Scheme)
+	saver, err := saver.NewSaver("file")
 	if err != nil {
 		return nil, fmt.Errorf("failed to create saver: %w", err)
 	}
