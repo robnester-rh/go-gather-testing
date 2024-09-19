@@ -214,7 +214,7 @@ func TestFileGatherer_copyFile_Destination_URIParseError(t *testing.T) {
 	if err == nil {
 		t.Error("expected an error, but got nil")
 	}
-	if err.Error() != "failed to parse destination URI: parse \":\": missing protocol scheme" {
+	if err.Error() != "failed to parse destination URI: parse \":\": unknown protocol scheme" {
 		t.Logf("Expected: %s, Got: %s", "failed to parse destination URI: parse \":\": missing protocol scheme", err.Error())
 		t.Fail()
 	}
@@ -251,8 +251,8 @@ func TestFileGatherer_copyFile_CreateSaverError(t *testing.T) {
 	if err == nil {
 		t.Error("expected an error, but got nil")
 	}
-	if err.Error() != "failed to create saver: unsupported protocol: ftp" {
-		t.Logf("Expected: %s, Got: %s", "failed to create saver: unsupported protocol: ftp", err.Error())
+	if err.Error() != "failed to classify destination URI: unsupported protocol: ftp" {
+		t.Logf("Expected: %s, Got: %s", "failed to classify destination URI: unsupported protocol: ftp", err.Error())
 		t.Fail()
 	}
 
