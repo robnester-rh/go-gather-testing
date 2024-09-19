@@ -76,7 +76,11 @@ func (g *GitGatherer) Gather(ctx context.Context, source, destination string) (m
 	cloneOpts := &git.CloneOptions{
 		URL:             src,
 		InsecureSkipTLS: os.Getenv("GIT_SSL_NO_VERIFY") == "true",
-		ReferenceName:   plumbing.ReferenceName(ref),
+	}
+
+	// If we have a ref and it isn't a hash, set the reference name in the clone options
+	if len(ref) > 0 && !plumbing.IsHash(ref) {
+		cloneOpts.ReferenceName = plumbing.ReferenceName(ref)
 	}
 
 	if depth != "" {
