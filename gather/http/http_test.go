@@ -306,5 +306,5 @@ func TestHTTPGatherer_Gather_ClassifyURI_Error(t *testing.T) {
 	if err == nil {
 		t.Error("expected an error, but got nil")
 	}
-	assert.EqualError(t, err, "error determining destination type: unsupported source protocol: foo")
+	assert.EqualError(t, err, "error determining destination type: unsupported protocol: foo")
 }

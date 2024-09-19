@@ -58,7 +58,7 @@ func TestGather(t *testing.T) {
 			t.Error("expected an error, but got nil")
 		}
 
-		expectedErrorMessage := "failed to classify source URI: unsupported source protocol: ftp"
+		expectedErrorMessage := "failed to classify source URI: unsupported protocol: ftp"
 		if err.Error() != expectedErrorMessage {
 			t.Errorf("expected error message: %s, but got: %s", expectedErrorMessage, err.Error())
 		}

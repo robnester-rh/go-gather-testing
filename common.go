@@ -125,7 +125,7 @@ func ClassifyURI(input string) (URIType, error) {
 	// Check for unsupported schemes
 	parsedURI, err := url.Parse(input)
 	if err == nil && parsedURI.Scheme != "" && parsedURI.Scheme != "http" && parsedURI.Scheme != "https" {
-		return Unknown, fmt.Errorf("unsupported source protocol: %s", parsedURI.Scheme)
+		return Unknown, fmt.Errorf("unsupported protocol: %s", parsedURI.Scheme)
 	}
 
 	// Check if the input contains a dot but lacks a valid scheme
