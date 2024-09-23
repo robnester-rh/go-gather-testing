@@ -50,6 +50,8 @@ import (
 	"github.com/enterprise-contract/go-gather/saver"
 )
 
+var Transport http.RoundTripper = http.DefaultTransport
+
 type HTTPGatherer struct {
 	Client http.Client
 }
@@ -107,6 +109,8 @@ func (h *HTTPGatherer) Gather(ctx context.Context, source, destination string) (
 	}
 
 	req.Header.Set("User-Agent", "Go-Gather")
+
+	h.Client.Transport = Transport
 
 	// Send the HTTP request
 	resp, err := h.Client.Do(req)
