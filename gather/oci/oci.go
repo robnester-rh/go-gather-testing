@@ -23,6 +23,7 @@ package oci
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"os"
 	"strings"
 
@@ -35,6 +36,8 @@ import (
 	"github.com/enterprise-contract/go-gather/metadata"
 	"github.com/enterprise-contract/go-gather/metadata/oci"
 )
+
+var Transport http.RoundTripper = http.DefaultTransport
 
 var orasCopy = oras.Copy
 
@@ -72,7 +75,7 @@ func (f *OCIGatherer) Gather(ctx context.Context, source, destination string) (m
 	}
 
 	// Setup the client for the repository
-	if err := r.SetupClient(src); err != nil {
+	if err := r.SetupClient(src, Transport); err != nil {
 		return nil, fmt.Errorf("failed to setup repository client: %w", err)
 	}
 

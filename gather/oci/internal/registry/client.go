@@ -30,7 +30,7 @@ import (
 
 /* This code is sourced from the open-policy-agent/conftest project. */
 
-func SetupClient(repository *remote.Repository) error {
+func SetupClient(repository *remote.Repository, transport http.RoundTripper) error {
 	registry := repository.Reference.Host()
 
 	// If `--tls=false` was provided or accessing the registry via loopback with
@@ -41,7 +41,7 @@ func SetupClient(repository *remote.Repository) error {
 	}
 
 	httpClient := &http.Client{
-		Transport: retry.NewTransport(http.DefaultTransport),
+		Transport: retry.NewTransport(transport),
 	}
 
 	store, err := credentials.NewStoreFromDocker(credentials.StoreOptions{
