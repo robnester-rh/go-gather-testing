@@ -81,3 +81,80 @@ func TestDirectoryMetadata_Get(t *testing.T) {
 		}
 	}
 }
+
+func TestFileMetadata_GetPinnedURL(t *testing.T) {
+	tests := []struct {
+		name          string
+		url           string
+		expectedURL   string
+		expectError   bool
+		expectedError error
+	}{
+		{
+			name:        "valid URL",
+			url:         "http://example.com",
+			expectedURL: "http://example.com",
+			expectError: false,
+		},
+		{
+			name:        "empty URL",
+			url:         "",
+			expectedURL: "",
+			expectError: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			m := FileMetadata{}
+			gotURL, err := m.GetPinnedURL(tt.url)
+			if (err != nil) != tt.expectError {
+				t.Errorf("GetPinnedURL() error = %v, expectError %v", err, tt.expectError)
+				return
+			}
+			if gotURL != tt.expectedURL {
+				t.Errorf("GetPinnedURL() gotURL = %v, expectedURL %v", gotURL, tt.expectedURL)
+			}
+		})
+	}
+}
+
+func TestDirectoryMetadata_GetPinnedURL(t *testing.T) {
+	tests := []struct {
+		name          string
+		url           string
+		expectedURL   string
+		expectError   bool
+		expectedError string
+	}{
+		{
+			name:        "properly structured file path",
+			url:         "file:///path/to/policy",
+			expectedURL: "file:///path/to/policy",
+			expectError: false,
+		},
+		{
+			name:          "empty file path",
+			url:           "",
+			expectedURL:   "",
+			expectError:   true,
+			expectedError: "empty URL",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			m := DirectoryMetadata{}
+			gotURL, err := m.GetPinnedURL(tt.url)
+			if tt.expectError && err != nil {
+				if err.Error() != tt.expectedError {
+					t.Errorf("GetPinnedURL() error = %v, expectedError %v", err, tt.expectedError)
+				}
+				return
+			}
+			if gotURL != tt.expectedURL {
+				t.Errorf("GetPinnedURL() gotURL = %v, expectedURL %v", gotURL, tt.expectedURL)
+			}
+		})
+	}
+}

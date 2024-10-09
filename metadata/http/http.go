@@ -16,6 +16,8 @@
 
 package http
 
+import "fmt"
+
 type HTTPMetadata struct {
 	StatusCode    int
 	ContentLength int64
@@ -30,4 +32,11 @@ func (m HTTPMetadata) Get() map[string]any {
 		"destination":   m.Destination,
 		"headers":       m.Headers,
 	}
+}
+
+func (m HTTPMetadata) GetPinnedURL(u string) (string, error) {
+	if len(u) == 0 {
+		return "", fmt.Errorf("empty URL")
+	}
+	return u, nil
 }

@@ -31,8 +31,8 @@ github.com/enterprise-contract/go-gather/expander v0.0.1 h1:CRJX7crqNyuuo82DtFby
 github.com/enterprise-contract/go-gather/expander v0.0.1/go.mod h1:bZ7oijDzlpY3gGc+H48YSsxbCEGxmsqQj+PxnYjtrjg=
 github.com/enterprise-contract/go-gather/gather/file v0.0.1 h1:UOec5Gc7+Q9u3x0Cyw8l2JDYCH7RTtHVnC57Rqs0Nyg=
 github.com/enterprise-contract/go-gather/gather/file v0.0.1/go.mod h1:tHsShLa5XpNSZbH8paHZR3Ltgu/7wtxpdCTVP8EXk/U=
-github.com/enterprise-contract/go-gather/gather/git v0.0.4 h1:UcQkvq2Cm7MFONvtECoNIbPe1R85+xraJRungQym78o=
-github.com/enterprise-contract/go-gather/gather/git v0.0.4/go.mod h1:8pSBY25NpofcTrEsnmRv4h1s30ukwkgFwew1iA19Fnc=
+github.com/enterprise-contract/go-gather/gather/git v0.0.5 h1:fWz0D42Lv2AjKkQCTfv+i5bJOOVD0RusaLTJuGfcIvc=
+github.com/enterprise-contract/go-gather/gather/git v0.0.5/go.mod h1:jEtaBsc8a4AsbXRwZaDPQAW9t5bNU/GvwNgYLAgwDhE=
 github.com/enterprise-contract/go-gather/gather/http v0.0.2 h1:Cwx+R2ECbpFZlYDD62h5lRrV/zyspxt2TOuWH8HlqYE=
 github.com/enterprise-contract/go-gather/gather/http v0.0.2/go.mod h1:Vdghi2YICVhShDK/MuTlZIrVvh0mBQrhKlstoENWrwM=
 github.com/enterprise-contract/go-gather/gather/oci v0.0.4 h1:THirSwb3gkBWJgJjOTzHhw5kbhSRqjClfGau9RW5uFc=

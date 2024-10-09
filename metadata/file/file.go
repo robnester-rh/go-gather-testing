@@ -41,6 +41,7 @@
 package file
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -66,10 +67,24 @@ func (m *FileMetadata) Get() map[string]any {
 	}
 }
 
+func (m FileMetadata) GetPinnedURL(u string) (string, error) {
+	if len(u) == 0 {
+		return "", fmt.Errorf("empty URL")
+	}
+	return u, nil
+}
+
 func (m *DirectoryMetadata) Get() map[string]any {
 	return map[string]any{
 		"size":      m.Size,
 		"path":      m.Path,
 		"timestamp": m.Timestamp,
 	}
+}
+
+func (m DirectoryMetadata) GetPinnedURL(u string) (string, error) {
+	if len(u) == 0 {
+		return "", fmt.Errorf("empty file path")
+	}
+	return u, nil
 }
