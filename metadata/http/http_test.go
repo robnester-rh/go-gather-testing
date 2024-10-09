@@ -57,7 +57,7 @@ func TestFileMetadata_GetPinnedURL(t *testing.T) {
 		{
 			name:        "valid URL",
 			url:         "http://example.com",
-			expectedURL: "http://example.com",
+			expectedURL: "http::example.com",
 			expectError: false,
 		},
 		{

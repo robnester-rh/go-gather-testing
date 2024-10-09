@@ -66,5 +66,8 @@ func (m GitMetadata) GetPinnedURL(u string) (string, error) {
 	for _, scheme := range []string{"git::", "git://", "https://"} {
 		u = strings.TrimPrefix(u, scheme)
 	}
-	return strings.SplitN("git://"+u, "?ref=", 2)[0] + "?ref=" + m.LatestCommit, nil
+	if strings.HasPrefix(u, "git@") {
+		u = strings.Replace(strings.Split(u, "git@")[1], ":", "/", 1)
+	}
+	return "git::" + strings.SplitN(u, "?ref=", 2)[0] + "?ref=" + m.LatestCommit, nil
 }

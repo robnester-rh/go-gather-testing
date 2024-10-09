@@ -42,6 +42,7 @@ package file
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -69,9 +70,12 @@ func (m *FileMetadata) Get() map[string]any {
 
 func (m FileMetadata) GetPinnedURL(u string) (string, error) {
 	if len(u) == 0 {
-		return "", fmt.Errorf("empty URL")
+		return "", fmt.Errorf("empty file path")
 	}
-	return u, nil
+	for _, scheme := range []string{"file::", "file://"} {
+		u = strings.TrimPrefix(u, scheme)
+	}
+	return "file::" + u, nil
 }
 
 func (m *DirectoryMetadata) Get() map[string]any {
@@ -86,5 +90,8 @@ func (m DirectoryMetadata) GetPinnedURL(u string) (string, error) {
 	if len(u) == 0 {
 		return "", fmt.Errorf("empty file path")
 	}
-	return u, nil
+	for _, scheme := range []string{"file::", "file://"} {
+		u = strings.TrimPrefix(u, scheme)
+	}
+	return "file::" + u, nil
 }

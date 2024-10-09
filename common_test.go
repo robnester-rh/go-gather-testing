@@ -88,6 +88,7 @@ func TestClassifyURI(t *testing.T) {
 		expected URIType
 	}{
 		{input: "git::git@github.com:user/repo.git", expected: GitURI},
+		{input: "git://github.com/user/repo.git//policiy/lib", expected: GitURI},
 		{input: "git@github.com:user/repo.git", expected: GitURI},
 		{input: "http::https://github.com/user/repo.git", expected: HTTPURI},
 		{input: "file::/home/user/file.txt", expected: FileURI},
@@ -113,7 +114,7 @@ func TestClassifyURI(t *testing.T) {
 	for _, tc := range testCases {
 		actual, err := ClassifyURI(tc.input)
 		if err != nil {
-			t.Errorf("Unexpected error: %v", err)
+			t.Errorf("Unexpected error for %s: %v", tc.input, err)
 		}
 		if actual != tc.expected {
 			t.Errorf("Expected ClassifyURI(%s) to return %s, but got %s", tc.input, tc.expected, actual)
