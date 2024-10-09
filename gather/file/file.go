@@ -32,11 +32,11 @@ import (
 	"sync"
 	"time"
 
+	utils "github.com/enterprise-contract/go-gather"
 	"github.com/enterprise-contract/go-gather/expander"
 	"github.com/enterprise-contract/go-gather/metadata"
 	"github.com/enterprise-contract/go-gather/metadata/file"
 	"github.com/enterprise-contract/go-gather/saver"
-	utils "github.com/enterprise-contract/go-gather"
 )
 
 // FileGatherer is a struct that implements the Gatherer interface
@@ -115,11 +115,11 @@ func (f *FileGatherer) copyFile(ctx context.Context, source, destination string)
 	defer srcFile.Close()
 
 	// Classify the destination to ensure no problems with the path.
-	destType,err := utils.ClassifyURI(destination)
+	destType, err := utils.ClassifyURI(destination)
 	if err != nil {
 		return nil, fmt.Errorf("failed to classify destination URI: %w", err)
 	}
-	if destType == utils.Unknown{
+	if destType == utils.Unknown {
 		return nil, fmt.Errorf("failed to parse destination URI: parse \"%s\": unknown protocol scheme", destination)
 	}
 	if destType != utils.FileURI {

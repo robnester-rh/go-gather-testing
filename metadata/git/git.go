@@ -35,6 +35,11 @@
 //	map[size:1024 path:/path/to/file.txt timestamp:2022-01-01 12:00:00 +0000 UTC commits:[{...}] path: size:0 timestamp:0001-01-01 00:00:00 +0000 UTC]
 package git
 
+import (
+	"fmt"
+	"strings"
+)
+
 // GitMetadata is a struct that represents the metadata of a git repository.
 // It has fields for size, path, timestamp, and commits.
 type GitMetadata struct {
@@ -49,4 +54,17 @@ func (m GitMetadata) Get() map[string]any {
 
 func (m GitMetadata) GetLatestCommit() string {
 	return m.LatestCommit
+}
+
+func (m GitMetadata) GetPinnedURL(u string) (string, error) {
+	if len(u) == 0 {
+		return "", fmt.Errorf("empty URL")
+	}
+	if m.LatestCommit == "" {
+		return "", fmt.Errorf("latest commit not set")
+	}
+	for _, scheme := range []string{"git::", "git://", "https://"} {
+		u = strings.TrimPrefix(u, scheme)
+	}
+	return strings.SplitN("git://"+u, "?ref=", 2)[0] + "?ref=" + m.LatestCommit, nil
 }

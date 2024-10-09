@@ -45,3 +45,40 @@ func TestHTTPMetadata_Get(t *testing.T) {
 		t.Errorf("unexpected result: got %v, want %v", result, expected)
 	}
 }
+
+func TestFileMetadata_GetPinnedURL(t *testing.T) {
+	tests := []struct {
+		name          string
+		url           string
+		expectedURL   string
+		expectError   bool
+		expectedError error
+	}{
+		{
+			name:        "valid URL",
+			url:         "http://example.com",
+			expectedURL: "http://example.com",
+			expectError: false,
+		},
+		{
+			name:        "empty URL",
+			url:         "",
+			expectedURL: "",
+			expectError: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			m := HTTPMetadata{}
+			gotURL, err := m.GetPinnedURL(tt.url)
+			if (err != nil) != tt.expectError {
+				t.Errorf("GetPinnedURL() error = %v, expectError %v", err, tt.expectError)
+				return
+			}
+			if gotURL != tt.expectedURL {
+				t.Errorf("GetPinnedURL() gotURL = %v, expectedURL %v", gotURL, tt.expectedURL)
+			}
+		})
+	}
+}
