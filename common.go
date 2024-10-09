@@ -18,6 +18,7 @@ package gogather
 
 import (
 	"fmt"
+	"log"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -58,11 +59,11 @@ func ExpandTilde(path string) string {
 // ClassifyURI classifies the input string as a Git URI, HTTP(S) URI, or file path
 func ClassifyURI(input string) (URIType, error) {
 	// Check for special prefixes first
-	if strings.HasPrefix(input, "git::") {
-		return GitURI, nil
-	}
 	if strings.HasPrefix(input, "file::") {
 		return FileURI, nil
+	}
+	if strings.HasPrefix(input, "git::") {
+		return GitURI, nil
 	}
 	if strings.HasPrefix(input, "http::") {
 		return HTTPURI, nil
@@ -72,19 +73,32 @@ func ClassifyURI(input string) (URIType, error) {
 		return OCIURI, nil
 	}
 
+	// Check for known git hosting services
 	if strings.HasPrefix(input, "github.com") || strings.HasPrefix(input, "gitlab.com") {
 		return GitURI, nil
 	}
 
-	// Regular expression for Git URIs
-	gitURIPattern := regexp.MustCompile(`^(git@[\w\.\-]+:[\w\.\-]+/[\w\.\-]+(\.git)?|https?://[\w\.\-]+/[\w\.\-]+/[\w\.\-]+(\.git)?|git://[\w\.\-]+/[\w\.\-]+/[\w\.\-]+(\.git)?|[\w\.\-]+/[\w\.\-]+/[\w\.\-]+//.*|file://.*\.git|[\w\.\-]+/[\w\.\-]+(\.git)?)$`)
-	// Regular expression for HTTP URIs (with or without protocol)
-	httpURIPattern := regexp.MustCompile(`^((http://|https://)[\w\-]+(\.[\w\-]+)+.*)$`)
+	// Check for schemes by trying to parse the input as a URL
+	u, err := url.Parse(input)
+	if err != nil {
+		log.Printf("unable to parse input '%s' as URI: %v - this is just a notice, not an error", input, err)
+	} else if u.Scheme != "" {
+		switch u.Scheme {
+		case "git":
+			return GitURI, nil
+		case "http", "https":
+			return HTTPURI, nil
+		case "file":
+			return FileURI, nil
+		case "oci":
+			return OCIURI, nil
+		}
+	}
+
 	// Regular expression for file paths
 	filePathPattern := regexp.MustCompile(`^(\./|\../|/|[a-zA-Z]:\\|~\/|file://).*`)
-	// Regular expression for OCI URIs
-	ociURIPattern := regexp.MustCompile(`^((oci://)[\w\-]+(\.[\w\-]+)+.*)$`)
-	// Regular expressions for known OCI registries
+	// Regular expression for Git URIs
+	gitURIPattern := regexp.MustCompile(`^(git@.+|.+/[^/]*\.git(?:/.*|$))`)
 
 	// Check if the input matches the file path pattern first
 	if filePathPattern.MatchString(input) {
@@ -102,30 +116,14 @@ func ClassifyURI(input string) (URIType, error) {
 		return GitURI, nil
 	}
 
-	// Check if the input matches the HTTP URI pattern
-	if httpURIPattern.MatchString(input) {
-		// Parse the input as a URI
-		parsedURI, err := url.Parse(input)
-		if err == nil && (parsedURI.Scheme == "http" || parsedURI.Scheme == "https") {
-			return HTTPURI, nil
-		}
-	}
-
-	// Check if the input matches the OCI URI pattern
-	if ociURIPattern.MatchString(input) {
-		return OCIURI, nil
-	}
-
 	// Check if the input matches any known OCI registry
-	isOCI := containsOCIRegistry(input)
-	if isOCI {
+	if containsOCIRegistry(input) {
 		return OCIURI, nil
 	}
 
 	// Check for unsupported schemes
-	parsedURI, err := url.Parse(input)
-	if err == nil && parsedURI.Scheme != "" && parsedURI.Scheme != "http" && parsedURI.Scheme != "https" {
-		return Unknown, fmt.Errorf("unsupported protocol: %s", parsedURI.Scheme)
+	if err == nil && u.Scheme != "" {
+		return Unknown, fmt.Errorf("unsupported protocol: %s", u.Scheme)
 	}
 
 	// Check if the input contains a dot but lacks a valid scheme

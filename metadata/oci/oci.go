@@ -50,5 +50,5 @@ func (o OCIMetadata) GetPinnedURL(u string) (string, error) {
 	if len(parts) > 1 {
 		u = parts[0]
 	}
-	return fmt.Sprintf("oci://%s@%s", u, o.Digest), nil
+	return fmt.Sprintf("oci::%s@%s", u, o.Digest), nil
 }
