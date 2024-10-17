@@ -251,8 +251,8 @@ func TestFileGatherer_copyFile_CreateSaverError(t *testing.T) {
 	if err == nil {
 		t.Error("expected an error, but got nil")
 	}
-	if err.Error() != "failed to classify destination URI: unsupported protocol: ftp" {
-		t.Logf("Expected: %s, Got: %s", "failed to classify destination URI: unsupported protocol: ftp", err.Error())
+	if got, expected := err.Error(), "failed to classify destination URI: unsupported source protocol: ftp"; got != expected {
+		t.Logf("Expected: %s, Got: %s", expected, got)
 		t.Fail()
 	}
 
@@ -340,4 +340,34 @@ func TestFileGatherer_getFileSha_OpenFileError(t *testing.T) {
 		t.Fail()
 	}
 
+}
+
+func TestPinnedUrlRoundtrip(t *testing.T) {
+	// setup
+	tmp := t.TempDir()
+	source := filepath.Join(tmp, "source")
+	if err := os.MkdirAll(source, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(source, "file.txt"), []byte("hello"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	file := &FileGatherer{}
+	destination := filepath.Join(tmp, "destination")
+	ctx := context.Background()
+	m, err := file.Gather(ctx, source, destination)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	pinned, err := m.GetPinnedURL(source)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = file.Gather(ctx, pinned, destination)
+	if err != nil {
+		t.Fatal(err)
+	}
 }

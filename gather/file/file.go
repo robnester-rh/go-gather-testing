@@ -46,6 +46,8 @@ type FileGatherer struct{}
 // Gather copies a file or directory from the source path to the destination path.
 // It returns the metadata of the gathered file or directory and any error encountered.
 func (f *FileGatherer) Gather(ctx context.Context, source, destination string) (metadata.Metadata, error) {
+	source = strings.TrimPrefix(source, "file::")
+
 	// Parse the source URI
 	src, err := url.Parse(source)
 
