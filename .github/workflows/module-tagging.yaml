@@ -1,0 +1,44 @@
+name: Tag Modules
+
+on:
+  push:
+    branches:
+      - main # Trigger on pushes to the main branch
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "latest"
+
+      - name: Install dependencies
+        run: npm install semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/commit-analyzer @semantic-release/release-notes-generator conventional-changelog-conventionalcommits
+
+      - name: Find and tag modules
+        run: |
+          changed_dirs=$(echo $(git diff --name-only HEAD~1 HEAD || echo "") | xargs -n 1 dirname | sort -u)
+          for changed_dir in $changed_dirs; do
+            echo "checking $changed_dir"
+            if [[ -f "$changed_dir/go.mod" ]]; then
+              if [[ -f "$changed_dir/.releaserc" ]]; then
+                cd $changed_dir
+                echo "Running Semantic Release for module in $changed_dir"
+                npx semantic-release
+                cd -
+              else
+                echo "No .releaserc found in $changed_dir, skipping..."
+              fi
+            else
+              echo "No go.mod found in $changed_dir. Skipping non-module changes."
+            fi
+          done
